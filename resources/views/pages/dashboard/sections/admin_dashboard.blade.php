@@ -1,0 +1,265 @@
+<div class="row">
+    <div class="col-lg-12">
+        <div class="d-flex" style="justify-content:space-between">
+                            <div class="d-flex  flex-row p-3" style="width:283px;background-color:#0967e9">
+                                    <div class="col-12 text-center align-self-center ">
+                                        <div class="m-l-10 ">
+                                            <h5 class="mt-0 round-inner text-white">{{ $activeOrdersCount ?? 0 }}</h5>
+                                            <p class="mb-0 text-white">Active Orders</p>
+                                        </div>
+                                    </div>
+
+                                </div>
+
+                                <div class="d-flex flex-row  p-3" style="width:283px;background-color:#f94966">
+                                    <div class="col-12 text-center align-self-center">
+                                        <div class="m-l-10 ">
+                                            <h5 class="mt-0 round-inner text-white">562</h5>
+                                            <p class="mb-0 text-white">Inproduction</p>
+                                        </div>
+                                    </div>
+
+                                </div>
+
+                                <div class="d-flex flex-row  p-3" style="width:283px;background-color:#069a6a">
+                                    <div class="col-12 text-center align-self-center">
+                                        <div class="m-l-10 ">
+                                            <h5 class="mt-0 round-inner text-white">{{ $todayPaymentColledtedCount ?? 0 }}</h5>
+                                            <p class="mb-0  text-white">Payment Collected (Today)</p>
+                                        </div>
+                                    </div>
+
+                                </div>
+
+                                <div class="d-flex flex-row p-3" style="width:283px;background-color:#896C6C">
+                                    <div class="col-12 text-center align-self-center">
+                                        <div class="m-l-10 ">
+                                            <h5 class="mt-0 round-inner text-white">₹{{ number_format($collectionPendingAmount, 2) ?? 0.00 }}</h5>
+                                            <p class="mb-0  text-white">Collection Pending (Total)</p>
+                                        </div>
+                                    </div>
+
+                                </div>
+
+                                <div class="d-flex flex-row  p-3" style="width:283px;background-color:#f76d30">
+                                    <div class="col-12 text-center align-self-center">
+                                        <div class="m-l-10 ">
+                                            <h5 class="mt-0 round-inner text-white">₹{{ number_format($revenueAmount, 2) ?? 0.00 }}</h5>
+                                            <p class="mb-0 text-white">Revenue</p>
+                                        </div>
+                                    </div>
+
+                                </div>
+        </div>
+    </div>
+ </div>
+
+ <div class="row mt-2">
+    <div class="col-lg-9 pr-0">
+        <div class="card bg-white" style="height:460px">
+            <div class="card-header bg-white">
+                Order Status (Customer Wise)
+            </div>
+
+            <div class="card-body">
+                <table class="table table-bordered" style="border:1px solid black" >
+                    <thead style="background-color:#f1f5f9">
+                        <tr>
+                            <th style="padding:6px">Order ID</th>
+                            <th style="padding:6px">Customer</th>
+                            <th style="padding:6px">Status</th>
+                            <th style="padding:6px">Delivery</th>
+                            <th style="padding:6px">Value</th>
+                            <th style="padding:6px">Payments</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if($orderDetails)
+                            @foreach ($orderDetails as $orderDetail)
+                                <tr>
+                                    <td style="padding:6px">
+
+                                        <a href="" style="color:#ec1c24;font-weight:bold">{{ $orderDetail?->quotation_no }}</a>
+                                    </td>
+                                    <td style="padding:6px">{{ $orderDetail?->customer?->customer_name }}</td>
+                                    <td style="padding:6px;text-align:center"><span class="badge bg-secondary text-white" style="width:150px">{{ removeUnderscoreText($orderDetail->production_status) }}</span></td>
+                                    @if($orderDetail->production_status == 'completed')
+                                        <td style="padding:6px;text-align:center;color:white"><span class="badge bg-success">Diapatched</span></td>
+                                        @else
+                                        <td style="padding:6px;text-align:center"><span class="badge bg-warning">Onprocess</span></td>
+                                    @endif
+
+                                    <td style="padding:6px">₹{{ number_format($orderDetail->total_collectable_amount, 2) }}</td>
+                                    <td style="padding:6px">₹{{ number_format($orderDetail->payments->sum('amount'), 2) ?? 0.00 }}</td>
+                                </tr>
+                            @endforeach
+                        @endif
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-3">
+        <div class="card bg-white p-0" style="height:460px">
+            <div class="card-header bg-white">
+                Team Status
+            </div>
+            <div class="card-body p-0">
+    <canvas id="myChart"
+        data-months='@json($months)'
+        data-sales='@json($sales)'>
+</canvas>
+            </div>
+        </div>
+    </div>
+ </div>
+
+ <div class="row mt-2">
+    <div class="col-lg-9 pr-0">
+        <div class="card">
+            <div class="card-header bg-white">
+                Quote Completed
+            </div>
+            <div class="card-body" style="height:460px">
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th style="padding:6px">Date</th>
+                            <th style="padding:6px">Quotation No</th>
+                            <th style="padding:6px">Customer Name</th>
+                            <th style="padding:6px">Status</th>
+                            <th style="padding:6px">Value</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @if($completedQuotations->count() > 0)
+                            @foreach ($completedQuotations as $completedQuotation)
+                               <tr>
+                                    <td style="padding:6px">
+                                        {{ formatDate($completedQuotation?->quotation_date) }}
+                                    </td>
+                                    <td>
+                                        <a href="" style="color:red;font-weight:bold">{{ $completedQuotation?->quotation_no }}</a>
+                                    </td>
+                                    <td style="padding:6px">{{ $completedQuotation?->customer?->customer_name }}</td>
+                                    <td style="padding:6px;text-align:center"><span class="badge bg-success text-white" >Completed</span></td>
+
+                                    <td style="padding:6px">₹{{ number_format($completedQuotation->total_collectable_amount, 2) }}</td>
+
+                                </tr>
+                            @endforeach
+                                @else
+                                <tr>
+                                    <td colspan="5">
+                                        <img src="/no-data.png" class="img-fluid" style="width:350px;margin:0 auto;display:block">
+                                    </td>
+                                </tr>
+                        @endif
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-3">
+        <div class="card">
+            <div class="card-header">
+                Team Workload
+            </div>
+            <div class="card-body p-0" style="height:460px">
+                <ul class="list-group">
+                    @if($processTeams)
+                        @foreach ($processTeams as $processTeam)
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                {{ $processTeam->team_name }}
+
+                                <span class="badge badge-primary badge-pill">
+                                    {{ $processTeam->quotationProductionStages->where('status', 'pending')->groupBy('quotation_id')->count() }}
+
+                                </span>
+                                </li>
+                        @endforeach
+                    @endif
+    </ul>
+
+            </div>
+        </div>
+    </div>
+ </div>
+
+ <div class="row mt-2">
+    <div class="col-lg-9 pr-0">
+        <div class="card">
+            <div class="card-header bg-white">
+                Components
+            </div>
+            <div class="card-body" style="height:460px">
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th style="padding:6px">Component Name</th>
+                            <th style="padding:6px">Code</th>
+                            <th style="padding:6px">Overall Stock</th>
+                            <th style="padding:6px">Used Stock</th>
+                            <th style="padding:6px">Available Stock</th>
+                            <th style="padding:6px">Unit Price</th>
+                            <th style="padding:6px">Status</th>
+                            <th style="padding:6px">Action</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @if($components = App\Models\ProductComponents::with('productionQuantity')->get()->take(10))
+
+                            @foreach ($components as $component)
+                             @php
+                                $availableStock = $component->stock_qty - $component->productionQuantity->sum('bom_qty');
+
+                                $status = '';
+                                if($availableStock < 10)
+                                {
+                                    $status = '<span class="badge bg-danger text-white">Low Quantity</span>';
+                                }
+                                else
+                                    {
+                                        $status = '<span class="badge bg-success text-white">Available</span>';
+                                    }
+                            @endphp
+                                <tr>
+                                    <td>{{ $component->component_name }}</td>
+                                    <td>{{ $component->code }}</td>
+                                    <td>{{ $component->stock_qty }}</td>
+                                    <td>{{ $component->productionQuantity->sum('bom_qty') }}</td>
+                                    <td>{{ $availableStock }}</td>
+                                    <td>₹{{ number_format($component->unit_price, 2) }}</td>
+                                    <td>{!! $status !!}</td>
+                                    <td>{{ $component->stock_qty }}</td>
+                                </tr>
+                            @endforeach
+                        @endif
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-3">
+        <div class="card">
+            <div class="card-header">
+                Tasks
+            </div>
+            <div class="card-body p-0" style="height:460px">
+
+                <ul class="list-group">
+                    @if($recentTasks)
+                        @foreach ($recentTasks as $recentTask)
+                            <li class="list-group-item">{{ $recentTask->title }}</li>
+                        @endforeach
+                    @endif
+                    </ul>
+            </div>
+        </div>
+    </div>
+ </div>
