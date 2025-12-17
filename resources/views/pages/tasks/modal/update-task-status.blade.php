@@ -26,11 +26,11 @@
                                         <label>Upload Image</label>
                                                              <div>
                                             <input type="file" class="form-control" required
-                                                    parsley-type="text" name="upload_image" placeholder=""/>
+                                                    parsley-type="text" name="upload_image" multiple placeholder=""/>
                                         </div>
                                     </div>
 
-                                    <input type="text" name="task_id" id="task_id">
+                                    <input type="hidden" name="task_id" id="task_id">
         </div>
         <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>

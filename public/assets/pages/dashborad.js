@@ -100,12 +100,61 @@
     $.Dashboard = new Dashboard, $.Dashboard.Constructor = Dashboard
 
 
-    $(document).on("click", ".addProductionQty", function() {
-    var id = $(this).data("id");
+   $(document).on("click", ".addProductionQty", function() {
+
+    var id = $(this).data("productid");
+    var quotationid = $(this).data("quotationid");
+    var quantity = $(this).data("quantity");
+    var datatype = $(this).data("datatype");
+
+    axios.get('/getBomDetails/' + id + '/' + datatype)
+    .then(response => {
+        const dataType = response.data.dataType;
+
+        const data = response.data.data;
+        const productName = response.data.productName;
+
+        $("#productName").text(productName);
+        $("#productionHistoryBody").html("");
+
+        let rows = "";
+
+        data.forEach(item => {
+            rows += `
+                <tr>
+                    <td>${dataType === 'product' ? item.bom_category : item.bom_name}</td>
+                    <td>${item.bom_qty * quantity}</td>
+                    <td>
+                        <input type="text"
+                               name="received_qty[${item.id}]"
+                               class="form-control"
+                               value="${item.received_qty ?? ''}">
+                    </td>
+                </tr>
+            `;
+        });
+
+        $("#productionHistoryBody").html(rows);
+    })
+
+        .catch(error => {
+            console.error(error);
+            $("#productionHistoryDetails").html('<p>Error loading production history.</p>');
+        });
 
     $("#productionHistoryModal").modal('show');
-    $("#production_id").val(id);
-    })
+    $("#product_id").val(id);
+    $("#orderedQty").text(" - Qty : "+quantity);
+    $("#quotationid").val(quotationid);
+
+
+});
+
+
+
+
+
+
 
     $(document).on("click", ".allocateEmployee", function(){
         var productid = $(this).data("productid");
@@ -263,6 +312,95 @@
 
     });
 
+});
+
+$(document).on("click", ".allocateDispatchTeam", function(){
+
+    var quotationId = $(this).data("quotationid");
+
+    $("#allocatedispatchEmployeeModal").modal('show');
+    $("#dispatch_quotationid").val(quotationId);
+});
+
+$(document).on("click", ".productDispatched", function(){
+    var quotationId = $(".takePhoto").data("quotationid");
+
+    Swal.fire({
+        title: "Are you sure?",
+        text: "You have Dispatch this Quotation",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Yes, Dispatched!",
+    }).then((result) => {
+
+        if (result.isConfirmed) {
+            $.ajax({
+                method: "POST",
+                url: '/productDispatch',
+                data: {
+                    quotation_id: quotationId,
+                },
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                success: function (data) {
+                    if (data && data.status === 'success') {
+                        toastr.success(data.message);
+                        setTimeout(() => location.reload(), 1000);
+                    } else {
+                        toastr.error(data.message || 'Unexpected server response.');
+                    }
+                },
+                error: function (xhr) {
+                    toastr.error("Request failed.");
+                }
+            });
+        }
+
+    });
+});
+
+$(document).on("click", ".updateStockOnProduct", function(){
+     var quotationId = $(".takePhoto").data("quotationid");
+
+
+    Swal.fire({
+        title: "Are you sure?",
+        text: "You have Dispatch this Quotation in Hitech",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Yes, Dispatched!",
+    }).then((result) => {
+
+        if (result.isConfirmed) {
+            $.ajax({
+                method: "POST",
+                url: '/productDispatchForHitech',
+                data: {
+                    quotation_id: quotationId,
+                },
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                success: function (data) {
+                    if (data && data.status === 'success') {
+                        toastr.success(data.message);
+                        setTimeout(() => location.reload(), 1000);
+                    } else {
+                        toastr.error(data.message || 'Unexpected server response.');
+                    }
+                },
+                error: function (xhr) {
+                    toastr.error("Request failed.");
+                }
+            });
+        }
+
+    });
 });
 
 

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Product;
 use App\Models\BOMParts;
+use App\Models\Quotation;
 use Illuminate\Http\Request;
 use App\Models\BomProcessTeams;
 use App\Models\ProductComponents;
@@ -69,6 +70,8 @@ class ProductController extends Controller
         $products->hsn_code = $request->hsn_code;
         $products->stock_qty = $request->stock_qty;
         $products->design_sheet = $designSheetImageUrl;
+        $products->color = $request->color;
+        $products->material = $request->material;
         $products->product_image = $productImageUrl;
         $products->data_sheet = $dataSheetImageUrl;
         $products->save();
@@ -144,4 +147,70 @@ class ProductController extends Controller
             "message" => 'Product Component Created Successfully...'
         ]);
     }
+
+    public function productDispatch(Request $request)
+    {
+
+        $quotationId = $request->quotation_id;
+
+        $quotation = Quotation::find($quotationId);
+        $quotation->update([
+            "production_status" => 'completed'
+        ]);
+
+        return response()->json([
+            "status" => 'success',
+            "message" => 'Quotation Dispatched',
+            "redirectTo" => '/dashboard'
+        ]);
+    }
+
+   public function productDispatchForHitech(Request $request)
+{
+    $quotationId = $request->quotation_id;
+
+    $quotation = Quotation::with('quotationProducts')->find($quotationId);
+
+    if (!$quotation) {
+        return response()->json([
+            "status" => "error",
+            "message" => "Quotation not found"
+        ]);
+    }
+
+    // Check photo
+    if ($quotation->dispatch_image == null) {
+        return response()->json([
+            "status" => "error",
+            "message" => "Please capture the photo"
+        ]);
+    }
+
+
+    foreach ($quotation->quotationProducts as $qProd) {
+
+        $product = Product::find($qProd->product_id);
+
+        if (!$product) {
+            return response()->json([
+                "status" => "error",
+                "message" => "Product not found for ID: {$qProd->product_id}"
+            ]);
+        }
+
+        $product->update([
+            "stock_qty" => $product->stock_qty + $qProd->quantity
+        ]);
+    }
+
+    $quotation->update([
+        "production_status" => "completed"
+    ]);
+
+    return response()->json([
+        "status" => "success",
+        "message" => "Product quantity updated"
+    ]);
+}
+
 }

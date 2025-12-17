@@ -29,8 +29,8 @@ class CategoryDataTable extends DataTable
                 <i class='fa fa-cog' aria-hidden='true'></i>
             </button>
             <div class='dropdown-menu' aria-labelledby='dropdownMenuButton'>
-                <a class='dropdown-item' href=''>Edit</a>
-                <a class='dropdown-item deleteBtn' >Delete</a>
+                <a class='dropdown-item' href='/categories/edit/{$query->id}'>Edit</a>
+                <a class='dropdown-item deleteBtn' data-url='/categories/delete/{$query->id}'>Delete</a>
             </div>
             </div>
                 ";

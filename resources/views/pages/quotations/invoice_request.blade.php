@@ -8,8 +8,21 @@
     ]"
     title="" />
 
+    @if($invoiceRequestCheck)
+        <div class="container-fluid">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="alert alert-danger mb-0 mt-2" role="alert">
+                    Invoice Request Already Created
+                </div>
+            </div>
+        </div>
+    </div>
+    @endif
+
+
     <div class="container-fluid">
-        <div class="row mt-3">
+        <div class="row mt-1">
 
                     <form id="createFormSubmit" class="form-horizontal m-t-10" method="POST" action="{{ route('invoice.request') }}">
                     @csrf
@@ -144,6 +157,7 @@
                                             <th>Description of goods</th>
                                             <th>HSN/SAC</th>
                                             <th>Part No</th>
+                                            <th>Previous Requested Qty</th>
                                             <th>Quantity</th>
                                             {{--  <th>Rate</th>  --}}
                                             {{--  <th>Wholesale Price</th>  --}}
@@ -153,12 +167,19 @@
                                             {{--  <th><button type="button" class="btn btn-success" id="addRow">+</button></th>  --}}
                                         </tr>
                                     </thead>
+
                                     <tbody>
                                         @if($quotationDetails->quotationProducts)
                                             @foreach ($quotationDetails->quotationProducts as $quotationProducts)
+
+                                            @php
+                                                $previousCreatedProductQty = App\Models\InvoiceRequestProducts::where('quotation_id', $quotationDetails->id)->where('product_id', $quotationProducts->product_id)->sum('quantity');
+                                            @endphp
+
                                         <tr>
                                             <td>
-                                                <select class="form-control quotationproduct js-example-basic-single" name="product_id[]" style="width:350px">
+
+                                                <select class="form-control quotationproduct js-example-basic-single" name="product_id[]" style="width:350px" >
                                                     <option>-- Choose Product --</option>
                                                     @if($products = App\Models\Product::get())
                                                         @foreach ($products as $product)
@@ -171,10 +192,13 @@
                                                 <input type="text" name="hsn_no[]" class="form-control hsn_no" value="{{ $quotationProducts->product->hsn_code }}" readonly>
                                             </td>
                                             <td>
-                                                <input type="text" name="part_no[]" class="form-control part_no" value="{{ $quotationProducts->product->part_no }}" readonly>
+                                                <input type="text" name="part_no[]" class="form-control part_no" value="{{ $quotationProducts->product->part_number }}" readonly>
                                             </td>
                                             <td>
-                                                <input type="text" name="quantity[]" class="form-control quantity" value="{{ $quotationProducts->quantity }}">
+                                                <input type="text" name="previous_quantity[]" class="form-control quantity" value="{{ $previousCreatedProductQty ?? 0 }}" readonly>
+                                            </td>
+                                            <td>
+                                                <input type="text" name="quantity[]" class="form-control quantity" value="{{ $quotationProducts->quantity - $previousCreatedProductQty }}" >
                                             </td>
                                             {{--  <td>
                                                 <input type="text" name="rate[]" class="form-control rate" readonly value="{{ $quotationProducts->rate }}">

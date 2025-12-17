@@ -3086,6 +3086,13 @@ body {
     width: 100%;
 }
 
+.accordion-button:not(.collapsed)::after {
+    display: none;
+}
+
+.accordion-button.collapsed::after {
+    display: none;
+}
 .option-box.active {
     background-color: #ec536c;
     color: white;

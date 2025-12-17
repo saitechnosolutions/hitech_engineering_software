@@ -333,6 +333,7 @@
 @push('scripts')
         <script src="/assets/js/quotation.js"></script>
 
+
         <script>
             $(document).on("click", ".updateTaskStatus", function(){
                 var taskId = $(this).data("id");

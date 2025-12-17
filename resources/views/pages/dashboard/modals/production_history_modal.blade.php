@@ -1,5 +1,5 @@
 <div class="modal fade" id="productionHistoryModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
+  <div class="modal-dialog modal-lg">
     <form id="createFormSubmit" class="form-horizontal m-t-10" method="POST" action="{{ route('production.updateStatus') }}">
     <div class="modal-content">
       <div class="modal-header">
@@ -7,22 +7,30 @@
         <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
-         <div class="form-group">
-                    <label>Date</label>
-                        <div>
-                            <input type="date" class="form-control" required
-                                                    parsley-type="text" name="date" value="{{ date('Y-m-d') }}" placeholder=""/>
-                        </div>
-            </div>
 
-             <div class="form-group">
-                    <label>Completed Quantity</label>
-                        <div>
-                            <input type="number" class="form-control" required
-                                                    parsley-type="text" name="completed_quantity" id="completed_quantity" placeholder=""/>
-                        </div>
-            </div>
-            <input type="hidden" name="production_id" id="production_id">
+
+           <table class="table table-bordered" id="productionHistoryTable">
+    <thead>
+        <tr>
+            <th colspan="3">
+                <span id="productName" style="color:red"></span>
+                <span id="orderedQty"></span>
+            </th>
+        </tr>
+        <tr>
+            <th>BOM Name</th>
+            <th>BOM Qty</th>
+            <th>Received Qty</th>
+        </tr>
+    </thead>
+
+    <tbody id="productionHistoryBody">
+        <!-- JS Will Insert Rows Here -->
+    </tbody>
+</table>
+
+            <input type="hidden" name="product_id" id="product_id">
+            <input type="hidden" name="quotationid" id="quotationid">
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>

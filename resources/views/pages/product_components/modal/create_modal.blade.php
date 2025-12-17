@@ -14,7 +14,7 @@
 
                 <div class="col-lg-6">
                     <div class="form-group">
-                                        <label>Component Name</label>
+                                        <label>Component Name {!! required() !!}</label>
                                         <div>
                                             <input type="text" class="form-control" required
                                                     parsley-type="text" name="component_name" placeholder=""/>
@@ -26,7 +26,7 @@
 
                 <div class="col-lg-6">
                      <div class="form-group">
-                                        <label>Stock Quantity</label>
+                                        <label>Stock Quantity {!! required() !!}</label>
                                         <div>
                                             <input type="text" class="form-control" required
                                                     parsley-type="text" name="stock_qty" placeholder=""/>
@@ -35,7 +35,7 @@
                 </div>
                   <div class="col-lg-6">
                     <div class="form-group">
-                                        <label>Code</label>
+                                        <label>Code {!! required() !!}</label>
                                         <div>
                                             <input type="text" class="form-control" required
                                                     parsley-type="text" name="code" placeholder=""/>
@@ -44,7 +44,7 @@
                 </div>
                 <div class="col-lg-6">
                     <div class="form-group">
-                                        <label>Unit Price</label>
+                                        <label>Unit Price {!! required() !!}</label>
                                         <div>
                                             <input type="text" class="form-control" required
                                                     parsley-type="text" name="unit_price" placeholder=""/>

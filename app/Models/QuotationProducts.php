@@ -35,4 +35,8 @@ class QuotationProducts extends Model
     {
         return $this->belongsTo(Employee::class, 'ss_fabrication_emp_id', 'id');
     }
+
+    public function quotation(){
+        return $this->belongsTo(Quotation::class, 'quotation_id', 'id');
+    }
 }

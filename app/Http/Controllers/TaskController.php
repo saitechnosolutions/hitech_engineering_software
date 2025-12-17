@@ -104,7 +104,7 @@ class TaskController extends Controller
 
         $task = Task::find($request->task_id);
         $task->update([
-            "comple_task_image" => $taskImageUrl,
+            "completed_task_images" => $taskImageUrl,
             "completed_task_timestamp" => Carbon::now(),
             "status" => $request->task_status
         ]);

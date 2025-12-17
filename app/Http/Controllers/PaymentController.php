@@ -41,10 +41,10 @@ class PaymentController extends Controller
 
         if($request->amount > $collectableAmount){
 
-
             return response()->json([
             "status" => 'error',
-            "message" => 'Payment amount cannot exceed Collectable Amount'
+            "message" => 'Payment amount cannot exceed Collectable Amount',
+
         ]);
         }
 
@@ -57,9 +57,19 @@ class PaymentController extends Controller
         $paymentEntry->entered_by = Auth::user()->id;
         $paymentEntry->save();
 
+        $totalReceivedAmount = $paymentEntry->where('quotation_id', $request->quotation_id)->sum('amount');
+
+        if($collectableAmount === $totalReceivedAmount)
+        {
+            $quotation->update([
+                "payment_status" => 'completed'
+            ]);
+        }
+
         return response()->json([
             "status" => 'success',
-            "message" => 'Payment Saved Successfully'
+            "message" => 'Payment Saved Successfully',
+            "redirectTo" => '/payments'
         ]);
     }
 }

@@ -211,37 +211,40 @@ $(function () {
 $(document).on("click", ".invoiceComplete", function() {
     var id = $(this).data("id");
 
-    Swal.fire({
-        title: "Are you sure?",
-        text: "This quotation invoice completed",
-        icon: "warning",
-        showCancelButton: true,
-        confirmButtonColor: "#3085d6",
-        cancelButtonColor: "#d33",
-        confirmButtonText: "Yes",
-    }).then((result) => {
-        if (result.isConfirmed) {
-            $.ajax({
-                method: "POST",
-                url: "/invoice_status_completed",
-                data: {
-                    _token: $('meta[name="csrf-token"]').attr('content'),
-                    id: id
-                },
-                success: function (data) {
-                    if (data && data.status === 'success') {
-                        toastr.success(data.message);
-                        setTimeout(function () {
-                            location.reload();
-                        }, 1000);
-                    } else {
-                        toastr.error(data.message || 'Unexpected server response.');
-                    }
-                },
-                error: function (xhr) {
-                    toastr.error("Failed to move to production.");
-                }
-            });
-        }
-    });
+    $("#invoiceApproveModal").modal('show');
+    $("#invoiceid").val(id);
+
+    // Swal.fire({
+    //     title: "Are you sure?",
+    //     text: "This quotation invoice completed",
+    //     icon: "warning",
+    //     showCancelButton: true,
+    //     confirmButtonColor: "#3085d6",
+    //     cancelButtonColor: "#d33",
+    //     confirmButtonText: "Yes",
+    // }).then((result) => {
+    //     if (result.isConfirmed) {
+    //         $.ajax({
+    //             method: "POST",
+    //             url: "/invoice_status_completed",
+    //             data: {
+    //                 _token: $('meta[name="csrf-token"]').attr('content'),
+    //                 id: id
+    //             },
+    //             success: function (data) {
+    //                 if (data && data.status === 'success') {
+    //                     toastr.success(data.message);
+    //                     setTimeout(function () {
+    //                         location.reload();
+    //                     }, 1000);
+    //                 } else {
+    //                     toastr.error(data.message || 'Unexpected server response.');
+    //                 }
+    //             },
+    //             error: function (xhr) {
+    //                 toastr.error("Failed to move to production.");
+    //             }
+    //         });
+    //     }
+    // });
 });

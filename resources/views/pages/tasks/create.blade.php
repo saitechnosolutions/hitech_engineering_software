@@ -32,7 +32,7 @@
                     <div class="form-group">
                                         <label>Task Type</label>
                                         <div>
-                                            <select class="form-control" name="task_type">
+                                            <select class="form-control" name="task_type" id="task_type">
                                                 <option value="">-- Choose Task --</option>
                                                 <option value="single_time">Single Time</option>
                                                 <option value="repeating_task">Repeating Task</option>
@@ -40,15 +40,15 @@
                                         </div>
                                     </div>
                 </div>
-                <div class="col-lg-3">
+                <div class="col-lg-3" id="start_date">
                     <div class="form-group">
-                                        <label>Task Date</label>
+                                        <label>Start Date</label>
                                         <div>
                                             <input type="date" class="form-control" required name="task_date" value="@php echo date('Y-m-d') @endphp" placeholder=""/>
                                         </div>
                                     </div>
                 </div>
-                <div class="col-lg-3">
+                <div class="col-lg-3" id="end_date">
                     <div class="form-group">
                                         <label>End Date</label>
                                         <div>
@@ -56,11 +56,11 @@
                                         </div>
                                     </div>
                 </div>
-                <div class="col-lg-3">
+                <div class="col-lg-3" id="repeating_type">
                     <div class="form-group">
                                         <label>Repeating Type</label>
                                         <div>
-                                            <select class="form-control" name="repeating_type">
+                                            <select class="form-control" name="repeating_type" id="repeating_type">
                                                 <option value="">-- Choose Repeating Type --</option>
                                                 <option value="daily">Daily</option>
                                                 <option value="monthly">Monthly</option>
@@ -132,5 +132,5 @@
 @include('pages.bom.modal.create_modal')
 
 @push('scripts')
-
+<script src="/assets/js/task.js"></script>
 @endpush

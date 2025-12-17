@@ -1,16 +1,35 @@
-let chartElement = document.getElementById('myChart');
+  // Get canvas element
+    let canvas = document.getElementById('twoWeekChart');
 
-let months = JSON.parse(chartElement.dataset.months);
-let sales = JSON.parse(chartElement.dataset.sales)
+    // Read dataset values from Blade
+    let lastWeek = JSON.parse(canvas.dataset.lastweek);
+    let currentWeek = JSON.parse(canvas.dataset.currentweek);
 
-var myChart = new Chart(chartElement, {
-    type: 'pie', // line, pie, doughnut, radar etc
-    data: {
-        labels: months,
-        datasets: [{
-            label: 'Monthly Sales',
-            data: sales,
-            borderWidth: 2,
-        }]
-    }
-});
+    // Get context
+    let ctx = canvas.getContext("2d");
+
+    // Create chart
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+            datasets: [
+                {
+                    label: 'Last Week',
+                    data: lastWeek,
+                    backgroundColor: 'rgba(54, 162, 235, 0.7)'
+                },
+                {
+                    label: 'Current Week',
+                    data: currentWeek,
+                    backgroundColor: 'rgba(255, 99, 132, 0.7)'
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: { beginAtZero: true }
+            }
+        }
+    });

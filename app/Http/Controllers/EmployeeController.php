@@ -29,4 +29,11 @@ class EmployeeController extends Controller
             "redirectTo" => '/employees'
         ]);
     }
+
+    public function edit($id)
+    {
+        $employee = Employee::find($id);
+
+        return view('pages.employees.edit', compact('employee'));
+    }
 }

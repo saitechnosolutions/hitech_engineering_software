@@ -163,7 +163,7 @@
                                                 <input type="text" name="hsn_no[]" class="form-control hsn_no" value="{{ $quotationProducts->product->hsn_code }}" readonly>
                                             </td>
                                             <td>
-                                                <input type="text" name="part_no[]" class="form-control part_no" value="{{ $quotationProducts->product->part_no }}" readonly>
+                                                <input type="text" name="part_no[]" class="form-control part_no" value="{{ $quotationProducts->product->part_number }}" readonly>
                                             </td>
                                             <td>
                                                 <input type="text" name="quantity[]" class="form-control quantity" value="{{ $quotationProducts->quantity }}" readonly>

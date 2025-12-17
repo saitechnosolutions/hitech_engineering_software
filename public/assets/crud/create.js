@@ -22,7 +22,7 @@ function create(form, url, datatable) {
                 window.location.href = response.data.redirectTo;
             }
 
-            $("#userCreateModal, #createCategoryModal, #consigneeCreateModal, #cargosCreateModal, #vendorsCreateModal, #vehicleCreateModal, #createPodEntry, #expenseCreateModal, #createCommisionBillEntry, #truckOwnerPaymentModal, #roleCreateModal, #createBatchModal, #productionHistoryModal" ).modal('hide');
+            $("#userCreateModal, #createCategoryModal, #consigneeCreateModal, #cargosCreateModal, #vendorsCreateModal, #vehicleCreateModal, #createPodEntry, #expenseCreateModal, #createCommisionBillEntry, #truckOwnerPaymentModal, #roleCreateModal, #createBatchModal, #productionHistoryModal, #allocatedispatchEmployeeModal, #createPaymentModal" ).modal('hide');
 
             datatable.ajax.reload(null, false);
         } else {

@@ -31,3 +31,8 @@ function removeUnderscoreText($text)
 function removeSpaceAddHyphen($string) {
     return str_replace(' ', '-', $string);
 }
+
+function required()
+{
+    return "<span style='color:red'>*</span>";
+}

@@ -10,7 +10,12 @@ class InvoiceRequest extends Model
     protected $fillable = [
         "quotation_id",
         "invoice_request_date",
-        "status"
+        "status",
+        "upload_documents"
+    ];
+
+    protected $casts = [
+        "upload_documents" => 'array'
     ];
 
     public function quotation()

@@ -123,12 +123,30 @@
                                     </div>
                  </div>
 
-                 <div class="col-lg-3">
+                 {{--  <div class="col-lg-3">
                      <div class="form-group">
                                         <label>Stock Qty</label>
                                         <div>
                                             <input type="text" class="form-control" required
                                                     parsley-type="text" name="stock_qty" placeholder=""/>
+                                        </div>
+                                    </div>
+                 </div>  --}}
+                 <div class="col-lg-3">
+                     <div class="form-group">
+                                        <label>Color</label>
+                                        <div>
+                                            <input type="text" class="form-control" required
+                                                    parsley-type="text" name="color" placeholder=""/>
+                                        </div>
+                                    </div>
+                 </div>
+                 <div class="col-lg-3">
+                     <div class="form-group">
+                                        <label>Material</label>
+                                        <div>
+                                            <input type="text" class="form-control" required
+                                                    parsley-type="text" name="material" placeholder=""/>
                                         </div>
                                     </div>
                  </div>
@@ -171,7 +189,7 @@
                                                     </thead>
                                                     <tbody>
                                                         <tr class="mainRow">
-                                                            <td style="width:300px">
+                                                            <td style="width:300px;padding:0px 10px">
                                                                 <select class="form-control mb-2 bomtype" name="bomType[]">
                                                                     <option value="">-- Choose Type --</option>
                                                                     <option value="1">Production</option>
@@ -188,21 +206,21 @@
 
                                                                 </select>
                                                             </td>
-                                                            <td style="width:300px"><input type="text" class="form-control" name="bom_part_name[]" /></td>
-                                                            <td><input type="text" class="form-control" name="bom_unit[]" /></td>
-                                                            <td><input type="text" class="form-control" name="quantity[]" /></td>
-                                                            <td><input type="text" class="form-control" name="price[]" /></td>
-                                                            <td>
+                                                            <td style="width:300px;padding:0px 10px"><input type="text" class="form-control" name="bom_part_name[]" /></td>
+                                                            <td style="padding:0px 10px"><input type="text" class="form-control" name="bom_unit[]" /></td>
+                                                            <td style="padding:0px 10px"><input type="text" class="form-control" name="quantity[]" /></td>
+                                                            <td style="padding:0px 10px"><input type="text" class="form-control" name="price[]" /></td>
+                                                            <td style="padding:0px 10px">
                                                                 <table class="table table-bordered stagesTable">
                                                                     <thead>
                                                                         <tr>
                                                                             <th>Stages</th>
-                                                                            <th><button type="button" class="btn btn-success addStageRow">+</button></th>
+                                                                            <th><button type="button" class="btn btn-success btn-sm addStageRow">+</button></th>
                                                                         </tr>
                                                                     </thead>
                                                                     <tbody>
                                                                         <tr class="stageRow">
-                                                                            <td>
+                                                                            <td style="padding:0px">
                                                                                 <select class="form-control" name="process_team[0][]">
                                                                                     <option value="">-- Choose Option --</option>
                                                                                     @foreach(App\Models\ProcessTeam::get() as $processTeam)
@@ -211,15 +229,15 @@
                                                                                 </select>
                                                                             </td>
                                                                             <td>
-                                                                                <button type="button" class="btn btn-danger removeStageRow">-</button>
+                                                                                <button type="button" class="btn btn-danger btn-sm removeStageRow">-</button>
                                                                             </td>
                                                                         </tr>
                                                                     </tbody>
                                                                 </table>
                                                             </td>
                                                             <td>
-                                                                <button type="button" class="btn btn-success addMainRow">+</button>
-                                                                <button type="button" class="btn btn-danger removeMaimRow">-</button>
+                                                                <button type="button" class="btn btn-success btn-sm addMainRow">+</button>
+                                                                <button type="button" class="btn btn-danger btn-sm removeMaimRow">-</button>
                                                             </td>
                                                         </tr>
                                                     </tbody>

@@ -5,42 +5,48 @@
                             <div class="d-flex  flex-row p-3" style="width:283px;background-color:#0967e9">
                                     <div class="col-12 text-center align-self-center ">
                                         <div class="m-l-10 ">
-                                            <h5 class="mt-0 round-inner text-white">562</h5>
+                                            <h5 class="mt-0 round-inner text-white">{{ $activeOrdersCount ?? 0 }}</h5>
                                             <p class="mb-0 text-white">Active Orders</p>
                                         </div>
                                     </div>
 
                                 </div>
                             </a>
+
+                            <a href="/collection-pending">
                                 <div class="d-flex flex-row  p-3" style="width:283px;background-color:#f94966">
                                     <div class="col-12 text-center align-self-center">
                                         <div class="m-l-10 ">
-                                            <h5 class="mt-0 round-inner text-white">562</h5>
+                                            <h5 class="mt-0 round-inner text-white">₹{{ number_format($collectionPendingAmount, 2) ?? 0.00 }}</h5>
                                             <p class="mb-0 text-white">Payment Pending</p>
                                         </div>
                                     </div>
 
                                 </div>
+                            </a>
 
-                                <div class="d-flex flex-row  p-3" style="width:283px;background-color:#069a6a">
+                            <a href="/retail-active-orders">
+                                 <div class="d-flex flex-row  p-3" style="width:283px;background-color:#069a6a">
                                     <div class="col-12 text-center align-self-center">
                                         <div class="m-l-10 ">
-                                            <h5 class="mt-0 round-inner text-white">562</h5>
+                                            <h5 class="mt-0 round-inner text-white">{{ $retailOrdersCount ?? 0 }}</h5>
                                             <p class="mb-0 text-white">Retail Active Order</p>
                                         </div>
                                     </div>
 
                                 </div>
+                            </a>
 
+                            <a href="/retail-completed-orders">
                                 <div class="d-flex flex-row p-3" style="width:283px;background-color:#896C6C">
                                     <div class="col-12 text-center align-self-center">
                                         <div class="m-l-10 ">
-                                            <h5 class="mt-0 round-inner text-white">562</h5>
+                                            <h5 class="mt-0 round-inner text-white">{{ $retailOrdersCountCompleted ?? 0 }}</h5>
                                             <p class="mb-0 text-white">Retail Completed</p>
                                         </div>
                                     </div>
-
                                 </div>
+                            </a>
 
                                 <a href="/invoice-request-details">
                                     <div class="d-flex flex-row  p-3" style="width:283px;background-color:#f76d30">
@@ -63,7 +69,7 @@
             <div class="card-header bg-white">
                 Components Stock
             </div>
-            <div class="card-body" style="height:460px">
+            <div class="card-body" style="height:720px">
                 <table class="table table-bordered" id="dataTable_two">
                     <thead>
                         <tr>

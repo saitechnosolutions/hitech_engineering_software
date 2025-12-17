@@ -40,19 +40,64 @@ class DashboardController extends Controller
         $recentTasks = Task::get()->take(10);
         $invoiceRequests = InvoiceRequest::where('status', 'pending')->get();
 
-        $months = ['Jan', 'Feb', 'Mar', 'Apr', 'May'];
-        $sales = [1500, 2000, 1800, 2200, 2600];
         $todayDate = date("Y-m-d");
-        $todayPaymentColledtedCount = PaymentDetails::where('payment_date', $todayDate)->count();
-        $activeOrdersCount = Quotation::whereIn('production_status', ['production_moved', 'ongoing'])->count();
-        $revenueAmount = Quotation::where('production_status', 'completed')->count();
+        $todayPaymentColledtedCount = PaymentDetails::where('payment_date', $todayDate)->get();
+        $activeOrdersCount = Quotation::whereIn('production_status', ['not_moved', 'production_moved', 'ongoing'])->count();
+        $inProductionCount = Quotation::whereIn('production_status', ['production_moved', 'ongoing'])->count();
+        $retailOrdersCount = Quotation::whereIn('production_status', ['production_moved', 'ongoing'])->where('quotation_type', 'retail')->count();
+        $retailOrdersCountCompleted = Quotation::where('production_status', 'completed')->where('quotation_type', 'retail')->count();
+        $revenueAmount = Quotation::where('production_status', 'completed')->sum('total_collectable_amount');
         $collectionPendingAmount = Quotation::whereIn('production_status', ['production_moved', 'ongoing'])->sum('total_collectable_amount');
 
-        return view('pages.dashboard.index', compact('quotations', 'roleId', 'teamIds', 'roleName', 'employees', 'teamId', 'orderDetails', 'processTeams', 'completedQuotations', 'recentTasks', 'invoiceRequests', 'months', 'sales', 'todayPaymentColledtedCount', 'activeOrdersCount', 'collectionPendingAmount', 'revenueAmount'));
+        $lastWeekData = [15000, 3000, 30000, 22000, 3000, 17000, 65000];
+$currentWeekData = [10005, 20002, 10009, 20005, 2000, 10004, 10001];
+
+        return view('pages.dashboard.index', compact('quotations', 'roleId', 'lastWeekData','currentWeekData', 'teamIds', 'roleName', 'employees', 'teamId', 'orderDetails', 'processTeams', 'completedQuotations', 'recentTasks', 'invoiceRequests',  'todayPaymentColledtedCount', 'activeOrdersCount', 'collectionPendingAmount', 'revenueAmount', 'retailOrdersCount', 'retailOrdersCountCompleted', 'inProductionCount'));
     }
 
     public function dashboardTl()
     {
         return view('pages.dashboard.dashboard_tl');
     }
+
+    public function paymentCollectionToday()
+    {
+        $todaydate = date("Y-m-d");
+        $paymentDetails = PaymentDetails::with('quotation')->where('payment_date', $todaydate)->get();
+
+        return view('pages.dashboard.payment_collection_today', compact('paymentDetails'));
+    }
+
+    public function collectionPending()
+    {
+        $collectionPendings = Quotation::with('payments')->whereIn('production_status', ['production_moved', 'ongoing'])->get();
+
+        return view('pages.dashboard.collection_pending', compact('collectionPendings'));
+    }
+
+    public function revenueDetails()
+    {
+        $revenueDetails = Quotation::where('production_status', 'completed')->get();
+
+        return view('pages.dashboard.revenue_details', compact('revenueDetails'));
+    }
+
+    public function retailActiveOrders()
+    {
+        $retailActiveOrders = Quotation::whereIn('production_status', ['production_moved', 'ongoing'])->where('quotation_type', 'retail')->get();
+
+        return view('pages.dashboard.retail-active-orders', compact('retailActiveOrders'));
+    }
+
+    public function retailCompletedOrders()
+    {
+        $retailCompletedOrders = Quotation::where('production_status', 'completed')->where('quotation_type', 'retail')->get();
+
+        return view('pages.dashboard.retail_completed_orders', compact('retailCompletedOrders'));
+    }
+
+    // public function paymentPendingDetails()
+    // {
+    //     $paymentPendingDetails = Quotation::where('production_status', 'completed')->get();
+    // }
 }

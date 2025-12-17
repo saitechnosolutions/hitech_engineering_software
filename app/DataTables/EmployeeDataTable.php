@@ -29,9 +29,8 @@ class EmployeeDataTable extends DataTable
                 <i class='fa fa-cog' aria-hidden='true'></i>
             </button>
             <div class='dropdown-menu' aria-labelledby='dropdownMenuButton'>
-                <a class='dropdown-item' href='/roles/$query->id/give-permission'>Add Permission</a>
-                <a class='dropdown-item' href='/roles/edit/{$query->id}'>Edit</a>
-                <a class='dropdown-item deleteBtn' data-url='/roles/delete/{$query->id}'>Delete</a>
+                <a class='dropdown-item' href='/employees/edit/{$query->id}'>Edit</a>
+                <a class='dropdown-item deleteBtn' data-url='/employees/delete/{$query->id}'>Delete</a>
             </div>
             </div>
                 ";

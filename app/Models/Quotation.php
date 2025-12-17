@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\InvoiceRequestProducts;
 use Illuminate\Database\Eloquent\Model;
 
 class Quotation extends Model
@@ -27,7 +28,9 @@ class Quotation extends Model
         "is_production_moved",
         "batch_date",
         "priority",
-        "production_status"
+        "production_status",
+        "dispatch_team_id",
+        "payment_status"
     ]
     ;
     public function customer()
@@ -43,5 +46,15 @@ class Quotation extends Model
     public function payments()
     {
         return $this->hasMany(PaymentDetails::class, 'quotation_id', 'id');
+    }
+
+    public function invoiceRequest()
+    {
+        return $this->hasMany(InvoiceRequest::class, 'quotation_id', 'id');
+    }
+
+    public function invoiceRequestProducts()
+    {
+        return $this->hasMany(InvoiceRequestProducts::class, 'quotation_id', 'id');
     }
 }

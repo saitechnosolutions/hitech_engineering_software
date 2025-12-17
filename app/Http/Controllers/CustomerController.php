@@ -43,4 +43,47 @@ class CustomerController extends Controller
         return $customer;
     }
 
+    public function edit($id)
+    {
+        $customer = Customer::find($id);
+
+        return view('pages.customers.edit', compact('customer'));
+    }
+
+    public function update(Request $request, $id)
+    {
+        $customer = Customer::find($id);
+
+        $customer->update([
+            "customer_name" => $request->customer_name,
+            "email" => $request->email,
+            "mobile_number" => $request->mobile_number,
+            "gst_number" => $request->gst_number,
+            "pincode" => $request->pincode,
+            "address" => $request->address,
+            "state" => $request->state,
+            "wholesale_price" => $request->wholesale_price,
+            "discount" => $request->discount,
+            "customer_type" => $request->customer_type,
+            "state_id" => $request->state_id,
+        ]);
+
+        return response()->json([
+            "status" => 'success',
+            "message" => 'Customer Updated Successfully',
+            "redirectTo" => '/customers'
+        ]);
+    }
+
+    public function delete($id)
+    {
+        $customer = Customer::find($id);
+        $customer->delete();
+
+        return response()->json([
+            "status" => 'success',
+            "message" => 'Customer Deleted Successfully',
+            "redirectTo" => '/customers'
+        ]);
+    }
 }

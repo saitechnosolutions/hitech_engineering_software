@@ -71,8 +71,8 @@
                                                     @foreach ($invoiceRequestPending as $pending)
                                                         <tr>
                                                             <td class="text-center">{{ $i++ }}</td>
-                                                            <td class="text-center">{{ $pending->quotation->quotation_no }}</td>
-                                                            <td class="text-center">{{ formatDate($pending->invoice_request_date) }}</td>
+                                                            <td class="text-center">{{ $pending?->quotation?->quotation_no }}</td>
+                                                            <td class="text-center">{{ formatDate($pending?->invoice_request_date) }}</td>
                                                             <td class="text-center"><span class="badge bg-success p-2 text-white" style="text-transform:capitalize">{{ $pending->status }}</span></td>
                                                             <td class="text-center">
                                                                 <a href="/invoice-request-information/{{ $pending->id }}" class="btn btn-primary"><i class="fa fa-eye" aria-hidden="true"></i></a>
@@ -118,11 +118,12 @@
                                                     @foreach ($invoiceRequestCompleted as $completed)
                                                         <tr>
                                                             <td class="text-center">{{ $i++ }}</td>
-                                                            <td class="text-center">{{ $completed->quotation->quotation_no }}</td>
+                                                            <td class="text-center">{{ $completed?->quotation?->quotation_no }}</td>
                                                             <td class="text-center">{{ formatDate($completed->invoice_request_date) }}</td>
                                                             <td class="text-center"><span class="badge bg-success p-2 text-white" style="text-transform:capitalize">{{ $completed->status }}</span></td>
                                                             <td>
                                                                 <a href="/invoice-request-information/{{ $completed->id }}" class="btn btn-primary"><i class="fa fa-eye" aria-hidden="true"></i></a>
+                                                                <a href="{{ $completed->upload_documents[0] }}" download class="btn btn-warning"><i class="fa fa-download" aria-hidden="true"></i></a>
                                                             </td>
                                                         </tr>
                                                     @endforeach
@@ -141,6 +142,8 @@
 
 
 @endsection
+
+@include('pages.quotations.modal.invoice_approve_modal')
 
 @push('scripts')
     <script src="/assets/js/quotation.js"></script>

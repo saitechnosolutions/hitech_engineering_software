@@ -93,6 +93,7 @@
         <script src="/assets/pages/datatables.init.js"></script>
         <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
         <script src="/assets/crud/create.js"></script>
+        <script src="/assets/crud/delete.js"></script>
         <script src="/assets/js/index.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>

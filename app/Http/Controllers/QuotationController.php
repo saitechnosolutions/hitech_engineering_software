@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Storage;
 use App\Models\Product;
 use App\Models\BOMParts;
 use App\Models\Quotation;
@@ -177,7 +178,7 @@ class QuotationController extends Controller
                     $productionStage->stage = $bomProces->stage;
                     $productionStage->production_status = 'pending';
                     $productionStage->product_quantity = $quotationDetail->quantity;
-                    $productionStage->bom_required_quantity = $bomParts->bom_qty * $quotationDetail->quantity;
+                    $productionStage->bom_required_quantity = (int) $bomParts->bom_qty * $quotationDetail->quantity;
                     $productionStage->save();
                 }
 
@@ -191,6 +192,46 @@ class QuotationController extends Controller
             "message" => 'Batch Moved to Production'
         ]);
     }
+
+    public function capturePhoto(Request $request)
+{
+    $imageData = $request->image_data;
+    $quotationId = $request->quotation_id;
+
+    if ($imageData) {
+
+        // Remove header
+        $image = str_replace('data:image/png;base64,', '', $imageData);
+        $image = str_replace(' ', '+', $image);
+        $imageName = time() . '_' . uniqid() . '.png';
+
+        // Ensure folder exists
+        if (!file_exists(public_path('dispatch_images'))) {
+            mkdir(public_path('dispatch_images'), 0777, true);
+        }
+
+        // Save image in public
+        $publicPath = public_path('dispatch_images/' . $imageName);
+        file_put_contents($publicPath, base64_decode($image));
+
+        // Update DB
+        Quotation::where('id', $quotationId)->update([
+            'dispatch_image' => 'dispatch_images/' . $imageName
+        ]);
+
+        // RETURN BACK WITH SUCCESS FLASH MESSAGE
+        return back()->with('success', 'Photo captured successfully!');
+
+        // return response()->json([
+        //     'status' => 'success',
+        //     'message' => 'Photo Captured Successfully',
+        //     'redirectTo' => '/dashboard'
+        // ]);
+    }
+
+    return redirect()->back()->with('error', 'No image captured.');
+}
+
 
 
 }
