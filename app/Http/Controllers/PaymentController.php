@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\PaymentDetails;
 use Illuminate\Support\Facades\Auth;
 use App\DataTables\PaymentEntryDataTable;
+use App\Http\Resources\PaymentFilterCollection;
 
 class PaymentController extends Controller
 {
@@ -72,4 +73,33 @@ class PaymentController extends Controller
             "redirectTo" => '/payments'
         ]);
     }
+
+   public function paymentReportFilter(Request $request)
+{
+    $quotationId = $request->quotationId;
+    $fromDate = $request->fromdate;
+    $toDate = $request->todate;
+
+    $payments = PaymentDetails::with('quotation')
+
+        ->when($quotationId, function ($q) use ($quotationId) {
+            $q->where('quotation_id', $quotationId);
+        })
+
+        ->when($fromDate && $toDate, function ($q) use ($fromDate, $toDate) {
+            $q->whereBetween('payment_date', [$fromDate, $toDate]);
+        })
+
+        ->orderBy('payment_date', 'desc')
+        ->get();
+
+       $paymentDetails = new PaymentFilterCollection($payments); 
+       
+    return response()->json([
+        'status' => 'success',
+        'data' => $paymentDetails
+    ]);
+}
+
+
 }

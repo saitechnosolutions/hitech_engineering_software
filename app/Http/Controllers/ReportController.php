@@ -7,8 +7,12 @@ use Illuminate\Http\Request;
 use App\Models\QuotationProducts;
 use App\DataTables\TaskReportDataTable;
 use App\DataTables\CollectionReportDataTable;
+use App\DataTables\ProductStockReportDataTable;
 use App\Http\Resources\EmployeeReportCollection;
+use App\DataTables\ComponentStockReportDataTable;
 use App\DataTables\EmployeeWiseProductionReportDataTable;
+use App\DataTables\QuotationReportDataTable;
+use App\DataTables\SalesStockReportDataTable;
 
 class ReportController extends Controller
 {
@@ -109,4 +113,25 @@ class ReportController extends Controller
     ]);
 }
 
+
+    public function productStockReport(ProductStockReportDataTable $dataTable)
+    {
+        return $dataTable->render('pages.reports.product-stock-report');
+    }
+
+    public function componentStockReport(ComponentStockReportDataTable $dataTable)
+    {
+        return $dataTable->render('pages.reports.component-stock-report');
+    }
+
+    public function salesStockReport(SalesStockReportDataTable $dataTable)
+    {
+        return $dataTable->render('pages.reports.sales-stock-report');
+    }
+
+    public function quotationReport(QuotationReportDataTable $dataTable)
+    {
+        return $dataTable->render('pages.reports.quotation-report');
+    }
+    
 }

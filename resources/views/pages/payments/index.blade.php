@@ -8,7 +8,67 @@
     ]"
     title="" />
 
+
  <div class="row mt-3">
+
+    <div class="col-12 m-0">
+                            <div class="card m-b-30">
+
+                                <div class="card-header">
+
+                                    <div style="display:flex;justify-content:space-between">
+                                        <h6>Filter</h6>
+
+                                    </div>
+
+                                </div>
+                                <div class="card-body m-0">
+                                    <form  class="reportSubmission" action="{{ route('paymentReportFilter') }}" id="paymentReportFilter">
+                                        @csrf
+                                    <div class="row">
+                                        <div class="col-lg-3">
+                                             <div class="form-group">
+                                                                        <label>Quotation No</label>
+                                                                        <div>
+                                                                            <select class="form-control js-example-basic-single" name="quotationId" id="quotationId" style="width:350px">
+                                                                                <option value="">-- Choose Option --</option>
+                                                                                @if($quotations = App\Models\Quotation::get())
+                                                                                    @foreach ($quotations as $quotation)
+                                                                                        <option value="{{ $quotation->id }}">{{ $quotation->quotation_no }}</option>
+                                                                                    @endforeach
+                                                                                @endif
+                                                                            </select>
+                                                                        </div>
+                                                                    </div>
+                                        </div>
+
+
+                                                                    <div class="col-lg-3">
+                                                                    <div class="form-group">
+                                                                        <label>From Date</label>
+                                                                        <input type="date" class="form-control" name="fromdate" id="fromDate">
+                                                                    </div>
+                                        </div>
+
+                                                                    <div class="col-lg-3">
+                                                                    <div class="form-group">
+                                                                        <label>Todate</label>
+                                                                        <input type="date" class="form-control" name="todate" id="toDate">
+                                                                    </div>
+                                        </div>
+
+                                        <div class="col-lg-3">
+                                            <button type="submit" class="btn btn-danger mt-4">Filter</button>
+                                        </div>
+
+                                        </div>
+                                        </form>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                         <div class="col-12">
                             <div class="card m-b-30">
                                 <div class="card-header">
@@ -37,5 +97,7 @@
 @include('pages.payments.modals.create_payment_modal')
 @push('scripts')
     {{ $dataTable->scripts(attributes: ['type' => 'module']) }}
+
+    <script src="/assets/js/payment.js"></script>
 @endpush
 

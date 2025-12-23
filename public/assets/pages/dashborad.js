@@ -106,6 +106,8 @@
     var quotationid = $(this).data("quotationid");
     var quantity = $(this).data("quantity");
     var datatype = $(this).data("datatype");
+    var team = $(this).data("team");
+
 
     axios.get('/getBomDetails/' + id + '/' + datatype)
     .then(response => {
@@ -146,8 +148,8 @@
     $("#product_id").val(id);
     $("#orderedQty").text(" - Qty : "+quantity);
     $("#quotationid").val(quotationid);
-
-
+    $("#productionType").val(datatype);
+    $("#team").val(team);
 });
 
 
@@ -323,7 +325,7 @@ $(document).on("click", ".allocateDispatchTeam", function(){
 });
 
 $(document).on("click", ".productDispatched", function(){
-    var quotationId = $(".takePhoto").data("quotationid");
+    var quotationId = $("#dispatch_quotation_id").val();
 
     Swal.fire({
         title: "Are you sure?",
@@ -362,8 +364,60 @@ $(document).on("click", ".productDispatched", function(){
     });
 });
 
+$(document).on("click", ".partialDispatched", function(){
+
+     var quotationId = $("#dispatch_quotation_id").val();
+
+
+});
+
+$(document).on("click", ".partialDispatched", function() {
+
+   var quotationId = $("#dispatch_quotation_id").val();
+
+
+    axios.get('/getQuotationDetails/' + quotationId)
+.then(response => {
+
+    $("#dispatchModal").modal('hide');
+    $("#partialDispatchModal").modal('show');
+
+    const data = response.data.data;   // this is an object
+    const products = data.quotation_products; // THIS is array
+    console.log(products);
+    let rows = "";
+
+    products.forEach(item => {
+        rows += `
+            <tr>
+                <td>${data.quotation_no}</td>
+                <td>${item.product.product_name}</td>
+                <td>${item.quantity}</td>
+                <td>${item.partial_qty}</td>
+                <td>
+                    <input type="text" name="qty[]" class="form-control" max="${item.quantity - item.partial_qty}">
+                    <input type="hidden" name="product_id[]" value="${item.product.id}" class="form-control" >
+                    <input type="hidden" name="quotation_id" value="${data.id}" class="form-control" >
+                </td>
+            </tr>
+        `;
+    });
+
+    $("#partialDispatchBody").html(rows);
+    })
+
+        .catch(error => {
+            console.error(error);
+            $("#productionHistoryDetails").html('<p>Error loading production history.</p>');
+        });
+
+
+});
+
+
 $(document).on("click", ".updateStockOnProduct", function(){
-     var quotationId = $(".takePhoto").data("quotationid");
+
+     var quotationId = $("#dispatch_quotation_id").val();
 
 
     Swal.fire({

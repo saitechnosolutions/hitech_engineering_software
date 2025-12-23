@@ -27,6 +27,7 @@ class CustomerController extends Controller
         $customer->discount = $request->discount;
         $customer->state_id = $request->state_id;
         $customer->customer_type = $request->customer_type;
+        $customer->employee_id = $request->employee_id;
         $customer->save();
 
         return response()->json([

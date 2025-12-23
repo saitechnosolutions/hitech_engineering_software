@@ -38,23 +38,33 @@ class ProductionController extends Controller
 
    public function updateProductionStatus(Request $request)
 {
-    dd($request);
+
     foreach ($request->received_qty as $bomId => $qty) {
+
+        if ($qty === null || $qty === '' || $qty <= 0) {
+        continue;
+    }
 
             $quotationProduct = QuotationProducts::where('quotation_id', $request->quotationid)->where('product_id', $request->product_id)->first();
 
-    $bomParts = BOMParts::find($bomId);
+
+
+  $productionType = $request->productionType;
+
+if ($productionType == 'bom') {
+
+     $bomParts = BOMParts::find($bomId);
+
     $requiredQty = $bomParts->bom_qty * $quotationProduct->quantity;
 
-    // Get already completed qty for THIS bom, quotation, and product
+    // Already Completed Qty for THIS bom
     $completedQty = ProductionHistory::where('bom_id', $bomId)
         ->where('quotation_id', $request->quotationid)
         ->where('product_id', $request->product_id)
+        ->where('production_type', 'bom')
         ->sum('completed_qty');
 
-
     $remainingQty = $requiredQty - $completedQty;
-
 
     if ($qty > $remainingQty) {
         return response()->json([
@@ -64,6 +74,52 @@ class ProductionController extends Controller
         ], 400);
     }
 
+      $teamId = Auth::user()->team_id;
+    $newCompletedQty = $completedQty + $qty;
+    $status = ($newCompletedQty == $requiredQty)
+    ? 'completed'
+    : 'pending';
+
+       $quotationProductionStage = QuotationProductionStages::where('quotation_id', $request->quotationid) ->where('product_id', $request->product_id) ->where('bom_id', $bomId) ->where('team_id', $teamId)
+       ->update(
+        [
+            "completed_quantity" => $completedQty + $qty,
+            "production_status" => $status
+         ]);
+       $quotationProductionStage = QuotationProductionStages::where('quotation_id', $request->quotationid) ->where('product_id', $request->product_id) ->where('bom_id', $bomId) ->where('stage', "stage_2")
+       ->update(
+        [
+            "completed_quantity" => $completedQty + $qty,
+            "production_status" => $status
+        ]);
+
+} elseif ($productionType == 'product') {
+
+
+    // Get already completed qty for the WHOLE PRODUCT
+    $query = ProductionHistory::where('quotation_id', $request->quotationid)
+    ->where('product_id', $request->product_id)
+    ->where('production_type', 'product');
+
+if ($request->team == 'packing') {
+    $query->where('team_name', 'product');
+}
+
+$productCompletedQty = $query->sum('completed_qty');
+
+
+    $productRemainingQty = $quotationProduct->quantity - $productCompletedQty;
+
+    // if ($qty > $productRemainingQty) {
+    //     return response()->json([
+    //         'status' => 'error',
+    //         'message' => "Product remaining qty is only {$productRemainingQty},
+    //                       but you entered {$qty}."
+    //     ], 400);
+    // }
+}
+
+
     // Save new record
     $history = new ProductionHistory();
     $history->bom_id = $bomId;
@@ -72,12 +128,9 @@ class ProductionController extends Controller
     $history->entry_date = date("Y-m-d");
     $history->completed_qty = $qty;
     $history->stage = $qty;
+    $history->production_type = $request->productionType;
+    $history->team_name = $request->team;
     $history->save();
-
-    $teamId = Auth::user()->team_id;
-
-       $quotationProductionStage = QuotationProductionStages::where('quotation_id', $request->quotationid) ->where('product_id', $request->product_id) ->where('bom_id', $bomId) ->where('team_id', $teamId) ->update([ "completed_quantity" => $completedQty + $qty ]);
-         $quotationProductionStage = QuotationProductionStages::where('quotation_id', $request->quotationid) ->where('product_id', $request->product_id) ->where('bom_id', $bomId) ->where('stage', "stage_2") ->update([ "completed_quantity" => $completedQty + $qty ]);
 
 }
 
@@ -93,6 +146,8 @@ public function getBomDetails($productId, $datatype)
 {
 
     $teamId = Auth::user()->team_id;
+
+
 
     $query = BOMParts::where('product_id', $productId)
     ->whereHas('processTeam', function ($q) use ($teamId, $productId, $datatype) {
@@ -117,7 +172,7 @@ if ($datatype === 'product') {
     $query->groupBy('bom_category');
 }
 
-$productDetails = $query->get();
+    $productDetails = $query->get();
 
 
     $productName = Product::find($productId);
@@ -326,5 +381,44 @@ foreach ($productionUpdate as $item) {
         return view('pages.products.barcode-print', compact('products'));
     }
 
+    public function getQuotationDetails($quotationId)
+    {
+        $quotationDetails = Quotation::with('quotationProducts', 'quotationProducts.product')->find($quotationId);
+
+        return response()->json([
+            "status" => 'success',
+            "message" => 'Quotation Details',
+            "data" => $quotationDetails
+        ]);
+    }
+
+   public function partialDispatch(Request $request)
+{
+
+    foreach ($request->product_id as $index => $productId) {
+
+        $quotationProduct = QuotationProducts::where('quotation_id', $request->quotation_id)
+            ->where('id', $productId)
+            ->first();
+
+        if(!$quotationProduct){
+            continue;
+        }
+
+        $quotationProduct->update([
+            "partial_qty" => $quotationProduct->partial_qty + $request->qty[$index] ?? 0
+        ]);
+    }
+
+    $quotation = Quotation::find($request->quotation_id);
+    $quotation->update([
+        "production_status" => 'partialy_dispatched'
+    ]);
+
+    return response()->json([
+        "status" => "success",
+        "message" => "Partial dispatch updated"
+    ]);
+}
 
 }

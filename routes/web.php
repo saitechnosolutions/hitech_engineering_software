@@ -131,6 +131,13 @@ Route::middleware('auth')->group(function () {
     Route::get('/invoice-request-information/{request_id}', [ProductionController::class, 'invoiceRequestinformation']);
     Route::get('/active-order-details', [ProductionController::class, 'activeOrderDetails'])->name('active-order-details');
     Route::get('/barcode-print/{productId}', [ProductionController::class, 'barcodePrint']);
+    Route::get('/getQuotationDetails/{quotationid}', [ProductionController::class, 'getQuotationDetails']);
+    Route::post('/partial_dispatch', [ProductionController::class, 'partialDispatch'])->name('partialdispatch');
+    Route::post('/paymentReportFilter', [PaymentController::class, 'paymentReportFilter'])->name('paymentReportFilter');
+    Route::get('/product-stock-report', [ReportController::class, 'productStockReport']);
+    Route::get('/component-stock-report', [ReportController::class, 'componentStockReport']);
+    Route::get('/sales-stock-report', [ReportController::class, 'salesStockReport']);
+    Route::get('/quotation-report', [ReportController::class, 'quotationReport']);
 
     Route::get('/permissions', [PermissionController::class, 'index']);
     Route::post('/permissions/store', [PermissionController::class, 'store'])->name('permission.store');

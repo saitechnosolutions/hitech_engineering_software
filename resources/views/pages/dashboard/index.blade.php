@@ -48,6 +48,7 @@
     @include('pages.dashboard.modals.production_history_show')
     @include('pages.dashboard.modals.accept_modal')
     @include('pages.dashboard.modals.dispatch_modal', ['quotations' => $quotations])
+
 @endsection
 
 @push('scripts')

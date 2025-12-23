@@ -13,15 +13,16 @@
 
         <img src="/assets/images/dispatch-image.jpg" class="img-fluid" style="margin:0 auto;display:block">
         <div class="text-center d-flex justify-content-center">
-            <button class="btn btn-danger updateStockOnProduct mr-3" data-quotationid="{{ $quotations }}"><i class="fa fa-building" aria-hidden="true"></i> Hitech Dispatch</button>
+            <input type="hidden" name="dispatch_quotation_id" type="text" id="dispatch_quotation_id">
+            <button class="btn btn-danger updateStockOnProduct mr-3" ><i class="fa fa-building" aria-hidden="true"></i> Hitech Dispatch</button>
             <div class="dropdown">
                 <button class="btn btn-success dropdown-toggle" type="button" data-toggle="dropdown" aria-expanded="false">
                 <i class="fa fa-users" aria-hidden="true"></i> Customer Dispatch
                 </button>
                 <div class="dropdown-menu">
-                    <a class="dropdown-item productDispatched"  ><i class="fa fa-paper-plane" aria-hidden="true"></i> &nbsp;&nbsp; Full Dispatch</a>
+                    <a class="dropdown-item productDispatched"  data-><i class="fa fa-paper-plane" aria-hidden="true"></i> &nbsp;&nbsp; Full Dispatch</a>
 
-                    <a class="dropdown-item" href="#">Partial Dispatch</a>
+                    <a class="dropdown-item partialDispatched" ><i class="fa fa-paper-plane" aria-hidden="true"></i> &nbsp;&nbsp; Partial Dispatch</a>
                 </div>
             </div>
         </div>

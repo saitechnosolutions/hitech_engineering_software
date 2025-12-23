@@ -89,7 +89,7 @@ function calculateSubtotal() {
 function calculateGSTAndTotal() {
     var subtotal = calculateSubtotal();
 
-
+    var customer_type = $("#customer_type").val();
     var cgstPerc = parseFloat($(".cgst_percentage").val()) || 0;
     var cgstAmount = subtotal * (cgstPerc / 100);
     $(".cgst_amount").val(cgstAmount.toFixed(2));
@@ -104,8 +104,15 @@ function calculateGSTAndTotal() {
     var igstAmount = subtotal * (igstPerc / 100);
     $(".igst_amount").val(igstAmount.toFixed(2));
 
+    if(customer_type == 'mrp_customer')
+    {
+        var totalAmount = subtotal;
+    }
+    else
+    {
+        var totalAmount = subtotal + cgstAmount + sgstAmount + igstAmount;
 
-    var totalAmount = subtotal + cgstAmount + sgstAmount + igstAmount;
+    }
     $(".total_amount").val(totalAmount.toFixed(2));
 }
 

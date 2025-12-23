@@ -31,6 +31,8 @@
 
             <input type="hidden" name="product_id" id="product_id">
             <input type="hidden" name="quotationid" id="quotationid">
+            <input type="hidden" name="productionType" id="productionType">
+            <input type="hidden" name="team" id="team">
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>

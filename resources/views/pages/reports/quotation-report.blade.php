@@ -34,7 +34,7 @@
                                     <form  class="reportSubmission" action="{{ route('employeeFilter') }}" id="employeeFilter">
                                         @csrf
                                     <div class="row">
-
+                                        
                                         <div class="col-lg-3">
                                             <div class="form-group">
                                                                         <label>Quotation</label>
@@ -51,7 +51,7 @@
                                                                     </div>
                                         </div>
 
-
+                                       
                                                                     <div class="col-lg-3">
                                                                     <div class="form-group">
                                                                         <label>From Date</label>
@@ -80,7 +80,7 @@
                             <div class="card m-b-30">
                                 <div class="card-header">
                                     <div style="display:flex;justify-content:space-between">
-                                        <h4 class="mt-0 header-title">Collection Report</h4>
+                                        <h4 class="mt-0 header-title">Quotation Report</h4>
                                     </div>
                                 </div>
 

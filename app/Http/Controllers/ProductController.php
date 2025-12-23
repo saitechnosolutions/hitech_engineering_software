@@ -153,7 +153,17 @@ class ProductController extends Controller
 
         $quotationId = $request->quotation_id;
 
+
+
         $quotation = Quotation::find($quotationId);
+
+         if ($quotation->dispatch_image == null) {
+        return response()->json([
+            "status" => "error",
+            "message" => "Please capture the photo"
+        ]);
+    }
+
         $quotation->update([
             "production_status" => 'completed'
         ]);

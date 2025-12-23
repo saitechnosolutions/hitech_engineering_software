@@ -3,27 +3,27 @@
 namespace App\DataTables;
 
 use App\Models\Quotation;
-use App\Models\CollectionReport;
+use App\Models\QuotationReport;
+use Illuminate\Database\Eloquent\Builder as QueryBuilder;
+use Yajra\DataTables\EloquentDataTable;
+use Yajra\DataTables\Html\Builder as HtmlBuilder;
 use Yajra\DataTables\Html\Button;
 use Yajra\DataTables\Html\Column;
-use Yajra\DataTables\EloquentDataTable;
 use Yajra\DataTables\Html\Editor\Editor;
 use Yajra\DataTables\Html\Editor\Fields;
 use Yajra\DataTables\Services\DataTable;
-use Yajra\DataTables\Html\Builder as HtmlBuilder;
-use Illuminate\Database\Eloquent\Builder as QueryBuilder;
 
-class CollectionReportDataTable extends DataTable
+class QuotationReportDataTable extends DataTable
 {
     /**
      * Build the DataTable class.
      *
-     * @param QueryBuilder<CollectionReport> $query Results from query() method.
+     * @param QueryBuilder<QuotationReport> $query Results from query() method.
      */
     public function dataTable(QueryBuilder $query): EloquentDataTable
     {
         return (new EloquentDataTable($query))
-            ->addColumn('company_name', function($query){
+             ->addColumn('company_name', function($query){
                 return $query?->customer?->customer_name;
             })
             ->addColumn('quotation_no', function($query){
@@ -47,14 +47,13 @@ class CollectionReportDataTable extends DataTable
                 $batch = \App\Models\QuotationBatch::whereJsonContains('quotation_ids', $query->id)->first();
                 return formatDate($batch->batch_date);
             })
-
             ->setRowId('id');
     }
 
     /**
      * Get the query source of dataTable.
      *
-     * @return QueryBuilder<CollectionReport>
+     * @return QueryBuilder<QuotationReport>
      */
     public function query(Quotation $model): QueryBuilder
     {
@@ -66,8 +65,8 @@ class CollectionReportDataTable extends DataTable
      */
     public function html(): HtmlBuilder
     {
-         return $this->builder()
-        ->setTableId('component-table')
+        return $this->builder()
+        ->setTableId('quotation-report-table')
         ->columns($this->getColumns())
         ->minifiedAjax()
 
@@ -80,7 +79,7 @@ class CollectionReportDataTable extends DataTable
      */
     public function getColumns(): array
     {
-        return [
+         return [
             Column::make('id')->title('S.No'),
             Column::make('company_name')->title('Company Name'),
             Column::make('batch')->title('Batch'),
@@ -99,6 +98,6 @@ class CollectionReportDataTable extends DataTable
      */
     protected function filename(): string
     {
-        return 'CollectionReport_' . date('YmdHis');
+        return 'QuotationReport_' . date('YmdHis');
     }
 }

@@ -211,7 +211,7 @@
             <div class="card-header bg-white">
                 Components
             </div>
-            <div class="card-body" style="height:460px">
+            <div class="card-body" style="height:640px">
                 <table class="table table-bordered">
                     <thead>
                         <tr>
