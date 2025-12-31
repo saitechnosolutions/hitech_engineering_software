@@ -106,12 +106,14 @@ Route::middleware('auth')->group(function () {
     // Quotations
     Route::get('/quotations', [QuotationController::class, 'index']);
     Route::get('/quotations/create', [QuotationController::class, 'create'])->name('quotation.create');
+    Route::get('/quotation/edit/{id}', [QuotationController::class, 'edit'])->name('quotation.edit');
     Route::post('/quotations/store', [QuotationController::class, 'store'])->name('quotation.store');
     Route::get('/quotationproduct/{productid}', [QuotationController::class, 'quotationProducts']);
     Route::get('/quotation_format/{id}', [QuotationController::class, 'quotationFormat']);
     Route::post('/quotations_batch/store', [QuotationController::class, 'storeQuotationBatch'])->name('quotation_batch.store');
-    Route::post('/move_to_production', [QuotationController::class, 'moveToProduction']);
+    Route::post('/move_to_production', [QuotationController::class, 'moveToProduction'])->name('move_to_production');
     Route::post('/productComplete', [ProductionController::class, 'productComplete']);
+    Route::get('/ready-to-production/{batchId}', [QuotationController::class, 'getBatchDetails']);
 
     // Production
 
@@ -172,6 +174,8 @@ Route::middleware('auth')->group(function () {
     Route::post('/employeeReportFilter', [ReportController::class, 'employeeReportFilter'])->name('employeeFilter');
     Route::get('/task-report', [ReportController::class, 'taskReport']);
     Route::post('/task-report-filter', [ReportController::class, 'taskReportFilter'])->name('taskReportFilter');
+    Route::get('/bom-purchase-report', [ReportController::class, 'bomPurchaseReport']);
+    Route::post('/bbomPurchaseReportFilter', [ReportController::class, 'bomPurchaseReportFilter'])->name('bomPurchaseReportFilter');
 
     Route::post('/quotation/capture-photo', [QuotationController::class, 'capturePhoto'])
      ->name('quotation.capture.photo');

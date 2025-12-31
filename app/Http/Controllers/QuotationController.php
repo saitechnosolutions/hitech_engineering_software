@@ -72,6 +72,7 @@ class QuotationController extends Controller
         $quotation->terms_of_delivery = $request->terms_of_delivery;
         $quotation->customer_id = $request->customer_id;
         $quotation->quotation_type = $request->quotation_type;
+        $quotation->customer_type = $request->customer_type;
         $quotation->total_actual_amount = $request->total_amount;
         $quotation->total_collectable_amount = $request->collection_amount;
         $quotation->save();
@@ -135,14 +136,77 @@ class QuotationController extends Controller
 
         return response()->json([
             "status" => 'success',
-            "message" => 'Batch Created Successfully'
+            "message" => 'Batch Created Successfully',
+            "redirectTo" => '/quotations'
         ]);
 
     }
 
-    public function moveToProduction(Request $request)
-    {
-        $batchId = $request->id;
+    // public function moveToProduction(Request $request)
+    // {
+
+    //     $batchId = $request->id;
+
+    //     $batch = QuotationBatch::find($batchId);
+    //     $batch->update([
+    //         "batch_status" => 'processing'
+    //     ]);
+
+    //     $quotation = Quotation::whereIn('id', $batch->quotation_ids)->update([
+    //         "is_production_moved" => 'Yes',
+    //         "batch_date" => $batch->batch_date,
+    //         "priority" => $batch->priority,
+    //         "production_status" => 'production_moved'
+    //     ]);
+
+    //     foreach($batch->quotation_ids as $quotationId)
+    //     {
+    //         $quotationDetails = Quotation::with('quotationProducts')->find($quotationId);
+
+    //         foreach($quotationDetails->quotationProducts as $quotationDetail)
+    //         {
+
+    //             $bomProceses = BomProcessTeams::where('product_id', $quotationDetail->product_id)->get();
+
+    //             foreach($bomProceses as $bomProces)
+    //             {
+
+    //                 $bomParts = BOMParts::find($bomProces->bom_id);
+
+    //                 $productionStage = new QuotationProductionStages();
+    //                 $productionStage->quotation_id = $quotationId;
+    //                 $productionStage->product_id = $bomProces->product_id;
+    //                 $productionStage->bom_id = $bomProces->bom_id;
+    //                 $productionStage->team_id = $bomProces->team_id;
+    //                 $productionStage->stage = $bomProces->stage;
+    //                 $productionStage->production_status = 'pending';
+    //                 $productionStage->product_quantity = $quotationDetail->quantity;
+    //                 $productionStage->bom_required_quantity = (int) $bomParts->bom_qty * $quotationDetail->quantity;
+    //                 $productionStage->save();
+
+
+    //                 $quotationDetail->update([
+    //                     "available_stock" => 1,
+    //                     "production_stock" => 1,
+    //                 ]);
+    //             }
+
+    //         }
+
+    //     }
+
+
+    //     return response()->json([
+    //         "status" => 'success',
+    //         "message" => 'Batch Moved to Production'
+    //     ]);
+    // }
+
+   public function moveToProduction(Request $request)
+{
+
+
+        $batchId = $request->batch_id;
 
         $batch = QuotationBatch::find($batchId);
         $batch->update([
@@ -156,12 +220,25 @@ class QuotationController extends Controller
             "production_status" => 'production_moved'
         ]);
 
-        foreach($batch->quotation_ids as $quotationId)
+
+         foreach($batch->quotation_ids as $quotationId)
         {
             $quotationDetails = Quotation::with('quotationProducts')->find($quotationId);
 
             foreach($quotationDetails->quotationProducts as $quotationDetail)
             {
+
+                 $productId = $quotationDetail->product_id;
+
+                    // Check if this product exists in request
+                    $index = array_search($productId, $request->product_id);
+
+                    if($index === false){
+                        continue;
+                    }
+
+                    $availableStock = $request->stock_entry[$index];
+                    $productionStock = $request->production_stock_entry[$index];
 
                 $bomProceses = BomProcessTeams::where('product_id', $quotationDetail->product_id)->get();
 
@@ -180,18 +257,32 @@ class QuotationController extends Controller
                     $productionStage->product_quantity = $quotationDetail->quantity;
                     $productionStage->bom_required_quantity = (int) $bomParts->bom_qty * $quotationDetail->quantity;
                     $productionStage->save();
+
                 }
+
+                  $quotationDetail->update([
+                    "available_stock" => $availableStock,
+                    "production_stock" => $productionStock
+                ]);
+
+                $productStock = Product::find($quotationDetail->product_id);
+
+                $productStock->update([
+                    "stock_qty" => $productStock->stock_qty - $availableStock
+                ]);
 
             }
 
         }
 
-
-        return response()->json([
+          return response()->json([
             "status" => 'success',
-            "message" => 'Batch Moved to Production'
+            "message" => 'Batch Moved to Production',
+            "redirectTo" => '/quotations'
         ]);
-    }
+
+}
+
 
     public function capturePhoto(Request $request)
 {
@@ -232,6 +323,19 @@ class QuotationController extends Controller
     return redirect()->back()->with('error', 'No image captured.');
 }
 
+public function getBatchDetails($batchId)
+{
+    $batchDetails = QuotationBatch::find($batchId);
+    $quotations = Quotation::with('quotationProducts')->whereIn('id', $batchDetails->quotation_ids)->get();
 
+    return view('pages.quotations.ready-to-production', compact('quotations', 'batchId'));
+}
+
+public function edit($id)
+{
+    $quotation = Quotation::with('quotationProducts')->find($id);
+
+    return view('pages.quotations.edit', compact('quotation'));
+}
 
 }

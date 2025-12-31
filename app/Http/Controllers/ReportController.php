@@ -5,14 +5,19 @@ namespace App\Http\Controllers;
 use App\Models\Task;
 use Illuminate\Http\Request;
 use App\Models\QuotationProducts;
+use Illuminate\Support\Facades\DB;
+
 use App\DataTables\TaskReportDataTable;
+use App\Models\QuotationProductionStages;
+use App\DataTables\QuotationReportDataTable;
 use App\DataTables\CollectionReportDataTable;
+use App\DataTables\SalesStockReportDataTable;
+use App\DataTables\BomPurchaseReportDataTable;
 use App\DataTables\ProductStockReportDataTable;
 use App\Http\Resources\EmployeeReportCollection;
 use App\DataTables\ComponentStockReportDataTable;
 use App\DataTables\EmployeeWiseProductionReportDataTable;
-use App\DataTables\QuotationReportDataTable;
-use App\DataTables\SalesStockReportDataTable;
+use App\Http\Resources\BomPurchaseReportCollection;
 
 class ReportController extends Controller
 {
@@ -133,5 +138,47 @@ class ReportController extends Controller
     {
         return $dataTable->render('pages.reports.quotation-report');
     }
-    
+
+    public function bomPurchaseReport(BomPurchaseReportDataTable $dataTable)
+    {
+         return $dataTable->render('pages.reports.bom-purchase-report');
+    }
+
+    public function bomPurchaseReportFilter(Request $request)
+    {
+        $type = $request->type;
+
+        if($type == 'quotation_wise'){
+            $quotationProductionWise = QuotationProductionStages::with('bom', 'quotation', 'product')->select(
+                    'quotation_id',
+                    'bom_id',
+                    DB::raw('SUM(bom_required_quantity) as total_count')
+                )
+                ->where('stage', 'stage_1')
+                ->groupBy('quotation_id', 'bom_id')
+                ->get();
+
+                $bomDetails = new BomPurchaseReportCollection($quotationProductionWise);
+        }
+        else
+        {
+            $quotationProductionWise = QuotationProductionStages::with('bom', 'quotation', 'product')->select(
+                    'quotation_id',
+                    'bom_id',
+                    DB::raw('SUM(bom_required_quantity) as total_count')
+                )
+                ->where('stage', 'stage_1')
+                ->groupBy('batch_id', 'bom_id')
+                ->get();
+
+                $bomDetails = new BomPurchaseReportCollection($quotationProductionWise);
+        }
+
+
+        return response()->json([
+            "status" => 'success',
+            "message" => 'Quotation Details',
+            "data" => $bomDetails
+        ]);
+    }
 }

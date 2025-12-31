@@ -30,7 +30,8 @@ class Quotation extends Model
         "priority",
         "production_status",
         "dispatch_team_id",
-        "payment_status"
+        "payment_status",
+        "customer_type"
     ]
     ;
     public function customer()

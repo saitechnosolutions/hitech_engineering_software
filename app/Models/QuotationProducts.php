@@ -19,7 +19,9 @@ class QuotationProducts extends Model
         "ms_fabrication_emp_id",
         "ss_fabrication_emp_id",
         "production_status",
-        "partial_qty"
+        "partial_qty",
+        "available_stock",
+        "production_stock"
     ];
 
     public function product()
