@@ -77,12 +77,12 @@
 
 
             <div class="card-body">
-                <form class="orderstatusSubmission" action="{{ route('orderstatusReportFilter') }}"
-                    id="orderstatusReportFilter  ">
+                {{--  <form class="orderstatusSubmission" action="{{ route('orderstatusReportFilter') }}"
+                    id="orderstatusReportFilter">
                     @csrf
                     <div class="row">
 
-                        <div class="col-lg-4">
+                        <div class="col-lg-3">
                             <div class="form-group">
                                 <label>Company Name </label>
 
@@ -101,26 +101,26 @@
                         </div>
 
 
-                        <div class="col-lg-4">
+                        <div class="col-lg-3">
                             <div class="form-group">
                                 <label>From Date</label>
                                 <input type="date" class="form-control" name="fromdate" id="fromDate">
                             </div>
                         </div>
-                        <div class="col-lg-4">
+                        <div class="col-lg-3">
                             <div class="form-group">
                                 <label>Todate</label>
                                 <input type="date" class="form-control" name="todate" id="toDate">
                             </div>
                         </div>
 
-                        <div class="col-lg-4 mb-4">
+                        <div class="col-lg-3 mb-4">
                             <button type="submit" class="btn btn-danger mt-4">Filter</button>
                         </div>
 
                     </div>
-                </form>
-                <table class="table table-bordered" style="border:1px solid #eee" id="orderStatusreport">
+                </form>  --}}
+                <table class="table table-bordered" style="border:1px solid #eee" >
                     <thead style="background-color:#f1f5f9">
                         <tr>
                             <th style="padding:6px">Order ID</th>
@@ -187,7 +187,7 @@
         <div class="card">
             <div class="card-header bg-white">Quote Completed</div>
             <div class="card-body" style="height:460px">
-                <form class="QuotestatusSubmission" action="{{ route('QuotestatusReportFilter') }}">
+                {{--  <form class="QuotestatusSubmission" action="{{ route('QuotestatusReportFilter') }}">
                     @csrf
                     <div class="row">
                         <div class="col-lg-4 col-md-6">
@@ -223,9 +223,9 @@
                             <button type="submit" class="btn btn-danger mt-4">Filter</button>
                         </div>
                     </div>
-                </form>
+                </form>  --}}
 
-                <table class="table table-bordered" id="QuotesStatustable">
+                <table class="table table-bordered" >
                     <thead>
                         <tr>
                             <th>Date</th>
@@ -236,9 +236,10 @@
                         </tr>
                     </thead>
                     <tbody>
+
                         @foreach ($completedQuotations as $completedQuotation)
                             <tr>
-                                <td>{{ $completedQuotation?->quotation_date->format('d-m-Y') }}</td>
+                                <td>{{ $completedQuotation?->quotation_date }}</td>
                                 <td>
                                     <a href="#"
                                         style="color:red;font-weight:bold">{{ $completedQuotation->quotation_no }}</a>
