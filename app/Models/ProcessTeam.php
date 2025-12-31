@@ -10,4 +10,9 @@ class ProcessTeam extends Model
     {
         return $this->hasMany(QuotationProductionStages::class, 'team_id', 'id');
     }
+
+        public function bomParts()
+    {
+        return $this->hasMany(BOMParts::class, 'product_id', 'id');
+    }
 }
