@@ -1,7 +1,9 @@
+<div class="row">
+    <div class="col-lg-12">
 
- <div class="row">
-        <div class="col-lg-12">
+        <div class="accordion" id="accordionExample">
 
+<<<<<<< HEAD
             <div class="accordion" id="accordionExample">
 
                 @php
@@ -138,28 +140,21 @@
 
         </div>
         <div class="col-lg-6">
+=======
+>>>>>>> reports_filter_module
             @php
-                $allocatedTeams = App\Models\QuotationProductionStages::where('product_id', $quotationProduct->product_id)->groupBy('team_id')->pluck('team_id');
-                $teamNames = App\Models\ProcessTeam::whereIn('id', $allocatedTeams)->get();
+                $userId = Auth::user()->id;
+                if ($roleName == 'Team Leader - Dispatch Team') {
+                    $quotations = $quotations->where('dispatch_team_id', $userId);
+                } else {
+                    $quotations = $quotations;
+                }
             @endphp
-            {{--  @if($boms = App\Models\QuotationProductionStages::with('bom')->where('quotation_id', $quotation->id)->where('product_id', $quotationProduct->product_id)->whereIn('team_id', $teamIds)->where('status', 'pending')->get())
-            <ul class="p-0" style="display:flex;flex-wrap: wrap">
-                @foreach ($boms as $bom)
-                <li style="display:flex;padding:10px;font-size:13px;border-radius:50px;">
-                    {{ $bom?->bom?->bom_name }}
-                </li>
-                @endforeach
-            </ul>
-            @endif  --}}
-            @if($boms = App\Models\QuotationProductionStages::with('bom')
-        ->where('quotation_id', $quotation->id)
-        ->where('product_id', $quotationProduct->product_id)
-        ->whereIn('team_id', $teamIds)
-        ->where('status', 'pending')
-        ->orderBy('id')
-        ->get())
 
-    @php
+            @if($quotations)
+                @php
+                    $i = 1;
+                @endphp
 
         if($roleName == 'Team Leader - Packing Team' || $roleName == 'Team Leader - Dispatch Team'){
 
@@ -246,39 +241,89 @@
                     {{ $bom?->bom?->bom_name }} / {{ $bom?->bom?->bom_unit }} / {{ $bom?->bom?->bom_qty }} Qty - &nbsp;<span style="color:red">QTY : {{ $bom?->completed_quantity ?? 0 }} / {{ $quotationProduct->production_stock * $bom->bom->bom_qty }} </span>
 
                     @php
-
-                        $getStageOneStatus = $bomProductionStage->where('quotation_id', $quotation->id)->where('bom_id', $bom->bom->id)->where('stage', 'stage_1')->first()->production_status;
-                        $getStageTwoStatus = $bomProductionStage->where('quotation_id', $quotation->id)->where('bom_id', $bom->bom->id)->where('stage', 'stage_2')->first()->production_status;
+                        $batchDetails = App\Models\QuotationBatch::whereJsonContains('quotation_ids', $quotation->id)->first();
+                        $quotationCount = App\Models\QuotationProductionStages::with('bom')->where('quotation_id', $quotation->id)->whereIn('team_id', $teamIds)->where('status', 'pending')->get()->count();
                     @endphp
 
+                    @if($quotationCount != 0)
+                        <div class="card">
+                            <div class="card-header" id="headingOne" style="background-color:#ffd2d4">
 
-                            @if($roleName == 'Team Leader - PIPE BENDING TEAM' || $roleName == 'Team Leader - LASER CUTTING TEAM' || $roleName == 'Team Leader - MACHINE SHOP TEAM')
-                                @if($getStageOneStatus == 'completed')
-                                    <pre class="badge badge-success"> Completed</pre>
-                                    @else
-                                    <pre class="badge badge-warning"> Pending</pre>
-                                @endif
-                            @endif
+                                <div class="d-flex" style="justify-content: space-between">
+                                    <h2 class="mb-0">
+                                        <button class="btn btn-link accordion-button" style="font-size:18px;color:#ec1c24"
+                                            type="button" data-toggle="collapse" data-target="#collapse{{ $quotation->id }}"
+                                            aria-expanded="true" aria-controls="collapseOne">
+                                            Quotation No : {{ $quotation?->quotation_no }} / Batch :
+                                            {{ formatDate($batchDetails?->batch_date) }} / Priority : {{ $batchDetails?->priority }}
+                                            / Customer : {{ $quotation?->customer?->customer_name }}
+                                        </button>
+                                    </h2>
 
-                            @if($roleName == 'Team Leader - MS FABRICATION TEAM' || $roleName == 'Team Leader - SS Fabrication Team' || $roleName == 'Team Leader - FITTING TEAM')
-                                @if($getStageOneStatus == 'completed' && $getStageTwoStatus == 'pending')
-                                    <pre class="badge badge-info"> Received</pre>
-                                        @elseif($getStageOneStatus == 'completed' && $getStageTwoStatus == 'completed')
-                                    <pre class="badge badge-success"> Received</pre>
-                                    @else
-                                    <pre class="badge badge-warning"> Pending</pre>
-                                 @endif
-                                @endif
+                                    @if(
+                                            $roleName == 'Team Leader - Packing Team' || 'Team Leader - PIPE BENDING TEAM ' || 'Team Leader - SS Fabrication Team' || 'Team Leader - MS FABRICATION TEAM' || 'Team Leader - MACHINE SHOP TEAM
+                                                                        ' || 'Team Leader - LASER CUTTING TEAM' || 'Team Leader - FITTING TEAM' || 'Team Leader - CNC LATHE TEAM' || 'Team Leader - Dispatch Team '
+                                        )
+                                        <div class="btn-group dropleft">
+                                            <button type="button" class="btn btn-danger dropdown-toggle" data-toggle="dropdown"
+                                                aria-expanded="false">
+                                                <i class="fa fa-sliders" aria-hidden="true"></i>
+                                            </button>
+                                            <div class="dropdown-menu">
+                                                <a class="dropdown-item" href="/invoice-request/{{ $quotation?->id }}"><i
+                                                        class="fa fa-paper-plane" aria-hidden="true"></i> &nbsp;&nbsp; Invoice
+                                                    Request</a>
+                                                <a class="dropdown-item allocateDispatchTeam"
+                                                    data-quotationid="{{ $quotation?->id }}"><i class="fa fa-user"
+                                                        aria-hidden="true"></i> &nbsp;&nbsp; Allocate Dispatch Team</a>
+                                                <div class="dropdown-divider"></div>
+                                                <a class="dropdown-item" onclick="exportToExcel({{ $quotation->id }})">
+                                                    <i class="fa fa-file-excel-o text-success"></i> &nbsp;&nbsp;
+                                                    Excel
+                                                </a>
+                                                <a class="dropdown-item" onclick="exportToPDF({{ $quotation->id }})">
+                                                    <i class="fa fa-file-pdf-o text-danger"></i> &nbsp;&nbsp;
+                                                    PDF
+                                                </a>
+                                            </div>
+                                        </div>
+                                    @endif
+                                    <!-- Camera Modal -->
+                                    <div id="cameraModal"
+                                        style="display:none; z-index:1111;position:fixed; top:0; left:0; width:100%; height:100%; background:#000000a0; justify-content:center; align-items:center;">
+                                        <div style="background:white; padding:20px; border-radius:10px;">
+                                            <video id="cameraStream" width="400" autoplay></video>
+                                            <br>
+                                            <button class="btn btn-warning" id="captureBtn">Capture</button>
+                                            <button class="btn btn-danger" onclick="closeCamera()">Close</button>
+                                        </div>
+                                    </div>
+                                    @if($roleName == 'Team Leader - Dispatch Team')
+                                        <div class="btn-group dropleft">
+                                            <button type="button" class="btn btn-danger dropdown-toggle" data-toggle="dropdown"
+                                                aria-expanded="false">
+                                                <i class="fa fa-sliders" aria-hidden="true"></i>
+                                            </button>
+                                            <div class="dropdown-menu">
+
+                                                <canvas id="cameraCanvas" width="400" height="300" style="display:none;"></canvas>
+
+                                                <form id="captureForm" action="{{ route('quotation.capture.photo') }}" method="POST">
+                                                    @csrf
+                                                    <input type="hidden" name="quotation_id" id="quotation_id">
+                                                    <input type="hidden" name="image_data" id="capturedImage">
+                                                </form>
 
 
-                @endif
-            </li>
-        @endforeach
-    </ul>
-@endif
+                                                <a class="dropdown-item takePhoto" data-quotationid="{{ $quotation?->id }}"><i
+                                                        class="fa fa-camera" aria-hidden="true"></i> &nbsp;&nbsp; Capture Photo</a>
 
-        </div>
-        <div class="col-lg-2 text-center">
+                                                {{-- <a class="dropdown-item productDispatched"
+                                                    data-quotationid="{{ $quotation?->id }}"><i class="fa fa-paper-plane"
+                                                        aria-hidden="true"></i> &nbsp;&nbsp; Quotation Dispatched</a> --}}
+                                                <a class="dropdown-item dispatchModal" data-quotationid="{{ $quotation?->id }}"><i
+                                                        class="fa fa-paper-plane" aria-hidden="true"></i> &nbsp;&nbsp; Quotation
+                                                    Dispatched</a>
 
                 @if($roleName == 'Team Leader - MS FABRICATION TEAM' || $roleName == 'Team Leader - SS Fabrication Team' || $roleName == 'Team Leader - FITTING TEAM')
                         <button class="btn btn-primary btn-sm allocateEmployee mb-1" style="width:170px;" data-quotationid="{{ $quotation->id }}" data-productid="{{ $quotationProduct->product_id }}" data-bom-id="{{ $bom->bom_id }}" data-stage="{{ $bom->stage }}" ><i class="fa fa-user-plus" aria-hidden="true"></i> Employee</button>
@@ -361,40 +406,10 @@
                 @endif
             @endif
 
-            @if($roleName == 'Team Leader - SS Fabrication Team')
-                @if(!empty($quotationProduct->ss_fabrication_emp_id))
-                    <span class="badge bg-warning w-100">SS Team : {{ $quotationProduct?->ssFabricationEmployee?->name }}</span>
-                @endif
             @endif
 
         </div>
     </div>
-</li>
-
-
-@else
-
-
-            @endif
-                    @endforeach
-                    </div>
-                    </ul>
-
-                @endif
-
-        </div>
-      </div>
-    </div>
-  </div>
-
-                @endif
-
-                    @endforeach
-
-                @endif
-
-</div>
-        </div>
 </div>
 
- @include('pages.dashboard.modals.partial_dispatch_modal')
+@include('pages.dashboard.modals.partial_dispatch_modal')

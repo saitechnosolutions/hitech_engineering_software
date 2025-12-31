@@ -1,3 +1,5 @@
+
+
 $(document).on("submit", "#employeeFilter", function(e) {
     e.preventDefault();
 
@@ -14,7 +16,7 @@ $(document).on("submit", "#employeeFilter", function(e) {
     .then(response => {
         console.log(response.data);
         if (response.data && response.data.status === 'success') {
-            
+
 
             if ($.fn.DataTable.isDataTable("#employeeWiseProductionReport")) {
                 $("#employeeWiseProductionReport").DataTable().clear().destroy();
@@ -27,7 +29,7 @@ $(document).on("submit", "#employeeFilter", function(e) {
                 { data: 'product_name', name: 'product_name' },
                 { data: 'team_name', name: 'team_name' },
                 { data: 'product_qty', name: 'product_qty' },
-               
+
             ];
 
             $("#employeeWiseProductionReport").DataTable({
@@ -40,6 +42,9 @@ $(document).on("submit", "#employeeFilter", function(e) {
                 order: [[1, 'asc']]
 
             });
+
+            // Update export links after successful data load
+            updateExportLinks();
 
         } else {
             toastr.error(response.data.message || 'Unexpected response from the server.');
@@ -54,4 +59,32 @@ $(document).on("submit", "#employeeFilter", function(e) {
         preloader.style.display = 'none';
     });
 
+});
+
+// Function to update export links with current filter parameters
+function updateExportLinks() {
+    var formData = new FormData(document.querySelector("#employeeFilter"));
+    var params = new URLSearchParams();
+
+    for (var pair of formData.entries()) {
+        if (pair[1]) {
+            // Only add if value is not empty
+            params.append(pair[0], pair[1]);
+        }
+    }
+
+    var queryString = params.toString();
+
+    // Update Excel export link
+    var excelUrl = "/employee-wise-production-report-export-excel?" + queryString;
+    $("#excelExport").attr("href", excelUrl);
+
+    // Update PDF export link
+    var pdfUrl = "/employee-wise-production-report-export-pdf?" + queryString;
+    $("#pdfExport").attr("href", pdfUrl);
+}
+
+// Initialize export links on page load
+$(document).ready(function () {
+    updateExportLinks();
 });

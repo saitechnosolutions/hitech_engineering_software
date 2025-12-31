@@ -23,27 +23,27 @@ class QuotationReportDataTable extends DataTable
     public function dataTable(QueryBuilder $query): EloquentDataTable
     {
         return (new EloquentDataTable($query))
-             ->addColumn('company_name', function($query){
+            ->addColumn('company_name', function ($query) {
                 return $query?->customer?->customer_name;
             })
-            ->addColumn('quotation_no', function($query){
+            ->addColumn('quotation_no', function ($query) {
                 return $query?->quotation_no;
             })
-            ->addColumn('quotation_date', function($query){
+            ->addColumn('quotation_date', function ($query) {
                 return formatDate($query?->quotation_date);
             })
-            ->addColumn('received_amount', function($query){
+            ->addColumn('received_amount', function ($query) {
                 return number_format($query->payments->sum('amount'), 2);
             })
-            ->addColumn('pending_amount', function($query){
+            ->addColumn('pending_amount', function ($query) {
                 return number_format($query->total_collectable_amount - $query->payments->sum('amount'), 2);
             })
 
-            ->addColumn('rm', function($query){
+            ->addColumn('rm', function ($query) {
                 return $query->customer?->employee?->name;
             })
 
-             ->addColumn('batch', function($query){
+            ->addColumn('batch', function ($query) {
                 $batch = \App\Models\QuotationBatch::whereJsonContains('quotation_ids', $query->id)->first();
                 return formatDate($batch->batch_date);
             })
@@ -66,12 +66,12 @@ class QuotationReportDataTable extends DataTable
     public function html(): HtmlBuilder
     {
         return $this->builder()
-        ->setTableId('quotation-report-table')
-        ->columns($this->getColumns())
-        ->minifiedAjax()
+            ->setTableId('quotation-report-table')
+            ->columns($this->getColumns())
+            ->minifiedAjax()
 
-        ->orderBy(1)
-        ->selectStyleSingle();
+            ->orderBy(1)
+            ->selectStyleSingle();
     }
 
     /**
@@ -79,7 +79,7 @@ class QuotationReportDataTable extends DataTable
      */
     public function getColumns(): array
     {
-         return [
+        return [
             Column::make('id')->title('S.No'),
             Column::make('company_name')->title('Company Name'),
             Column::make('batch')->title('Batch'),

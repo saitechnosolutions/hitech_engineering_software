@@ -15,4 +15,8 @@ class PaymentDetails extends Model
     {
         return $this->belongsTo(Quotation::class, 'quotation_id', 'id');
     }
+    public function rm()
+    {
+        return $this->belongsTo(Employee::class, 'entered_by', 'id');
+    }
 }
