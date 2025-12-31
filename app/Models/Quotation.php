@@ -31,8 +31,7 @@ class Quotation extends Model
         "production_status",
         "dispatch_team_id",
         "payment_status"
-    ]
-    ;
+    ];
     public function customer()
     {
         return $this->belongsTo(Customer::class, 'customer_id', 'id');
@@ -57,4 +56,6 @@ class Quotation extends Model
     {
         return $this->hasMany(InvoiceRequestProducts::class, 'quotation_id', 'id');
     }
+
+    
 }

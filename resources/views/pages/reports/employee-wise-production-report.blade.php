@@ -23,8 +23,8 @@
                                                         <i class='fa fa-download' aria-hidden='true'></i>
                                             </button>
                                             <div class='dropdown-menu' aria-labelledby='dropdownMenuButton'>
-                                                <a class='dropdown-item' >Excel</a>
-                                                <a class='dropdown-item ' >PDF</a>
+                                                <a class='dropdown-item' id='excelExport' href='#'>Excel</a>
+                                                <a class='dropdown-item' id='pdfExport' href='#' target='_blank'>PDF</a>
                                             </div>
                                             </div>
                                         </div>

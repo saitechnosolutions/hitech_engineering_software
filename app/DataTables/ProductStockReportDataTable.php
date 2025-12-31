@@ -34,7 +34,23 @@ class ProductStockReportDataTable extends DataTable
      */
     public function query(Product $model): QueryBuilder
     {
-        return $model->newQuery();
+        $query = $model->newQuery();
+
+        // Apply filters if present
+        if ($this->request()->has('productIds') && !empty($this->request()->productIds)) {
+            $query->where('id', $this->request()->productIds);
+        }
+
+        if ($this->request()->has('stocks') && !empty($this->request()->stocks)) {
+            $stocks = $this->request()->stocks;
+            if ($stocks === 'low') {
+                $query->where('stock_qty', '<=', 10);
+            } elseif ($stocks === 'high') {
+                $query->where('stock_qty', '>', 10);
+            }
+        }
+
+        return $query->orderBy('product_name');
     }
 
     /**
