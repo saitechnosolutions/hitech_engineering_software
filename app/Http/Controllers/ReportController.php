@@ -1464,42 +1464,38 @@ class ReportController extends Controller
 
         return $pdf->stream('task_report_' . date('Y-m-d_H-i-s') . '.pdf');
     }
-}
-
 
     public function bomPurchaseReport(BomPurchaseReportDataTable $dataTable)
     {
-         return $dataTable->render('pages.reports.bom-purchase-report');
+        return $dataTable->render('pages.reports.bom-purchase-report');
     }
 
     public function bomPurchaseReportFilter(Request $request)
     {
         $type = $request->type;
 
-        if($type == 'quotation_wise'){
+        if ($type == 'quotation_wise') {
             $quotationProductionWise = QuotationProductionStages::with('bom', 'quotation', 'product')->select(
-                    'quotation_id',
-                    'bom_id',
-                    DB::raw('SUM(bom_required_quantity) as total_count')
-                )
+                'quotation_id',
+                'bom_id',
+                DB::raw('SUM(bom_required_quantity) as total_count')
+            )
                 ->where('stage', 'stage_1')
                 ->groupBy('quotation_id', 'bom_id')
                 ->get();
 
-                $bomDetails = new BomPurchaseReportCollection($quotationProductionWise);
-        }
-        else
-        {
+            $bomDetails = new BomPurchaseReportCollection($quotationProductionWise);
+        } else {
             $quotationProductionWise = QuotationProductionStages::with('bom', 'quotation', 'product')->select(
-                    'quotation_id',
-                    'bom_id',
-                    DB::raw('SUM(bom_required_quantity) as total_count')
-                )
+                'quotation_id',
+                'bom_id',
+                DB::raw('SUM(bom_required_quantity) as total_count')
+            )
                 ->where('stage', 'stage_1')
                 ->groupBy('batch_id', 'bom_id')
                 ->get();
 
-                $bomDetails = new BomPurchaseReportCollection($quotationProductionWise);
+            $bomDetails = new BomPurchaseReportCollection($quotationProductionWise);
         }
 
 
