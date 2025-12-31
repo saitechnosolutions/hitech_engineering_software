@@ -92,7 +92,7 @@
                                                     @endforeach
                                                 @endif
                                             </select>
-                                             
+
                                         </div>
                                     </div>
             </div>
@@ -113,6 +113,22 @@
                                         <div>
                                              <input type="text" class="form-control" required
                                                     parsley-type="text" name="discount" placeholder=""/>
+                                        </div>
+                                    </div>
+            </div>
+
+              <div class="col-lg-6">
+                 <div class="form-group">
+                                        <label>RM</label>
+                                        <div>
+                                            <select class="form-select js-example-basic-single" name="employee_id" style="width:250px">
+                                                <option value="">-- Choose Employee --</option>
+                                                @if($employees = App\Models\Employee::get())
+                                                    @foreach ($employees as $employee)
+                                                        <option value="{{ $employee->id }}">{{ $employee->name }}</option>
+                                                    @endforeach
+                                                @endif
+                                            </select>
                                         </div>
                                     </div>
             </div>

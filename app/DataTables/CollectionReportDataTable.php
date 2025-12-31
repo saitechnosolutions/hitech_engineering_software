@@ -39,6 +39,14 @@ class CollectionReportDataTable extends DataTable
                 return number_format($query->total_collectable_amount - $query->payments->sum('amount'), 2);
             })
 
+            ->addColumn('rm', function($query){
+                return $query->customer?->employee?->name;
+            })
+
+             ->addColumn('batch', function($query){
+                $batch = \App\Models\QuotationBatch::whereJsonContains('quotation_ids', $query->id)->first();
+                return formatDate($batch->batch_date);
+            })
 
             ->setRowId('id');
     }
@@ -75,8 +83,10 @@ class CollectionReportDataTable extends DataTable
         return [
             Column::make('id')->title('S.No'),
             Column::make('company_name')->title('Company Name'),
+            Column::make('batch')->title('Batch'),
             Column::make('quotation_no')->title('Quotation No'),
             Column::make('quotation_date')->title('Quotation Date'),
+            Column::make('rm')->title('RM'),
             Column::make('total_collectable_amount')->title('Quotation Amount'),
             Column::make('received_amount')->title('Received Amount'),
             Column::make('pending_amount')->title('Pending Amount'),

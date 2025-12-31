@@ -80,6 +80,13 @@
 
     //init
     $.MainApp = new MainApp, $.MainApp.Constructor = MainApp
+
+    $(document).on("click", ".dispatchModal", function(){
+        var quotationId = $(this).data("quotationid");
+
+        $("#dispatchModal").modal('show');
+        $("#dispatch_quotation_id").val(quotationId);
+    });
 }(window.jQuery),
 
 //initializing

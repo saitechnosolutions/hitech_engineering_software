@@ -71,4 +71,5 @@ class RoleController extends Controller
 
         return redirect()->back()->with('success', 'Permissions added');
     }
+  
 }

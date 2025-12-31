@@ -23,22 +23,22 @@ class EmployeeWiseProductionReportDataTable extends DataTable
     public function dataTable(QueryBuilder $query): EloquentDataTable
     {
         return (new EloquentDataTable($query))
-            ->addColumn('employee_name', function($query){
-                return "";
+            ->addColumn('employee_name', function ($query) {
+                return $query->msFabricationEmployee?->name;;
             })
-            ->addColumn('quotation_no', function($query){
+            ->addColumn('quotation_no', function ($query) {
                 return $query->quotation?->quotation_no;
             })
-            ->addColumn('product_name', function($query){
+            ->addColumn('product_name', function ($query) {
                 return $query->product?->product_name;
             })
-            ->addColumn('team_name', function($query){
+            ->addColumn('team_name', function ($query) {
                 return "";
             })
-            ->addColumn('product_quantity', function($query){
+            ->addColumn('product_quantity', function ($query) {
                 return $query->quantity;
             })
-            
+
             ->setRowId('id');
     }
 
@@ -58,12 +58,12 @@ class EmployeeWiseProductionReportDataTable extends DataTable
     public function html(): HtmlBuilder
     {
         return $this->builder()
-        ->setTableId('employeeWiseProductionReport')
-        ->columns($this->getColumns())
-        ->minifiedAjax()
+            ->setTableId('employeeWiseProductionReport')
+            ->columns($this->getColumns())
+            ->minifiedAjax()
 
-        ->orderBy(1)
-        ->selectStyleSingle();
+            ->orderBy(1)
+            ->selectStyleSingle();
     }
 
     /**

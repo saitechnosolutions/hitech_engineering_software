@@ -493,7 +493,7 @@
 
                                                                             <a class='dropdown-item' href='/quotation/edit/{$query->id}'>Edit</a>
                                                                             <a class='dropdown-item deleteBtn' data-url='/quotation/delete/{$query->id}'>Delete</a>
-                                                                            <a class='dropdown-item moveToProduction' data-id="{{ $batch->id }}" >Move to Production</a>
+                                                                            <a class='dropdown-item' href="/ready-to-production/{{ $batch->id }}" >Move to Production</a>
                                                                         </div>
                                                                         </div>
                                                                 </td>

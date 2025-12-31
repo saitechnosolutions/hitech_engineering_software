@@ -79,7 +79,7 @@
                         <a class="dropdown-item takePhoto" data-quotationid="{{ $quotation?->id }}" ><i class="fa fa-camera" aria-hidden="true"></i> &nbsp;&nbsp; Capture Photo</a>
 
                         {{--  <a class="dropdown-item productDispatched" data-quotationid="{{ $quotation?->id }}" ><i class="fa fa-paper-plane" aria-hidden="true"></i> &nbsp;&nbsp; Quotation Dispatched</a>  --}}
-                        <a class="dropdown-item" data-toggle="modal" data-target="#dispatchModal"><i class="fa fa-paper-plane" aria-hidden="true"></i> &nbsp;&nbsp; Quotation Dispatched</a>
+                        <a class="dropdown-item dispatchModal"  data-quotationid="{{ $quotation?->id }}"><i class="fa fa-paper-plane" aria-hidden="true"></i> &nbsp;&nbsp; Quotation Dispatched</a>
 
 
                 </div>
@@ -132,7 +132,7 @@
                     <span>{{ $quotationProduct->product->part_number }}</span><br>
                     <span>{{ $quotationProduct->product->product_name }}</span> / <span>{{ $quotationProduct->product->variation }}</span><br>
                     <a href="{{ $quotationProduct->product->data_sheet }}" download>DATA SHEET</a><br>
-                    <span style="color:#ec1c24"><b>Product Qty :</b> {{ $quotationProduct->quantity }}</span>
+                    <span style="color:#ec1c24"><b>Production Qty :</b> {{ $quotationProduct->production_stock }}</span>
                 </div>
             </div>
 
@@ -156,6 +156,7 @@
         ->where('product_id', $quotationProduct->product_id)
         ->whereIn('team_id', $teamIds)
         ->where('status', 'pending')
+        ->orderBy('id')
         ->get())
 
     @php
@@ -179,12 +180,22 @@
                     {{ $bom?->bom?->bom_category }}
                     @php
 
-                        $receivedCompletedQty = App\Models\ProductionHistory::where('quotation_id', $quotation->id)->where('product_id', $quotationProduct->product_id)->where('bom_id', $bom->bom_id)->sum('completed_qty');
-                        $totqty = $bom?->bom->bom_qty * $quotationProduct->quantity;
-                         $color = ($receivedCompletedQty == $totqty) ? 'green' : 'red';
+                        $receivedCompletedQty = App\Models\ProductionHistory::where('quotation_id', $quotation->id)->where('product_id', $quotationProduct->product_id)->where('bom_id', $bom->bom_id)->where('production_type', 'product')->where('team_name', null)->sum('completed_qty');
+                        $packingQty = App\Models\ProductionHistory::where('quotation_id', $quotation->id)->where('product_id', $quotationProduct->product_id)->where('bom_id', $bom->bom_id)->where('production_type', 'product')->where('team_name', 'packing')->sum('completed_qty');
+                        $totqty = $bom?->bom->bom_qty * $quotationProduct->production_stock;
+
+                            if($bom->bom_type == 'production')
+                            {
+                                $color = ($receivedCompletedQty == $totqty) ? 'green' : 'red';
+                            }
+                            else
+                            {
+                                $color = $totqty ? 'green' : 'red';
+                            }
+
                     @endphp
 
-                        <div style="background-color:{{ $color }};padding:2px 5px;border-radius:5px;color:white"><span>{{ $receivedCompletedQty }}</span> / <span >{{ $totqty }}</span> Qty</div>
+                        <div style="background-color:{{ $color }};padding:2px 5px;border-radius:5px;color:white"><span>R : {{ $receivedCompletedQty }} / A : {{ $packingQty }}</span> / <span > T : {{ $totqty }}</span> Qty</div>
                     @php
                         $stageValue = $bom->stage;
 
@@ -205,7 +216,7 @@
                     @endphp
 
 
-                            @if($roleName == 'Team Leader - Packing Team')
+                            {{--  @if($roleName == 'Team Leader - Packing Team')
 
                                 @if($getStageTwoStatus == 'completed' && ($getStageThreeStatus == 'pending' || $getStageOneStatus == 'pending'))
                                     <pre class="badge badge-info"> Received</pre>
@@ -214,7 +225,7 @@
                                     @else
                                     <pre class="badge badge-warning"> Pending</pre>
                                  @endif
-                                @endif
+                                @endif  --}}
 
                     {{--  @if($bomProductionStage?->production_status == "completed") &nbsp;<pre class="badge badge-info"> Received</pre> @else  &nbsp;<pre class="badge badge-warning"> Pending</pre> @endif  --}}
                 @else
@@ -232,7 +243,7 @@
 
                     @endphp
 
-                    {{ $bom?->bom?->bom_name }} / {{ $bom?->bom?->bom_unit }} / {{ $bom?->bom?->bom_qty }} Qty - &nbsp;<span style="color:red">QTY : {{ $bom?->completed_quantity ?? 0 }} / {{ $bom->bom_required_quantity }}</span>
+                    {{ $bom?->bom?->bom_name }} / {{ $bom?->bom?->bom_unit }} / {{ $bom?->bom?->bom_qty }} Qty - &nbsp;<span style="color:red">QTY : {{ $bom?->completed_quantity ?? 0 }} / {{ $quotationProduct->production_stock * $bom->bom->bom_qty }} </span>
 
                     @php
 
@@ -253,7 +264,7 @@
                                 @if($getStageOneStatus == 'completed' && $getStageTwoStatus == 'pending')
                                     <pre class="badge badge-info"> Received</pre>
                                         @elseif($getStageOneStatus == 'completed' && $getStageTwoStatus == 'completed')
-                                    <pre class="badge badge-success"> Completed</pre>
+                                    <pre class="badge badge-success"> Received</pre>
                                     @else
                                     <pre class="badge badge-warning"> Pending</pre>
                                  @endif
@@ -269,25 +280,80 @@
         </div>
         <div class="col-lg-2 text-center">
 
-                @if($roleName == 'Team Leader - MS FABRICATION TEAM' || $roleName == 'Team Leader - SS Fabrication Team')
+                @if($roleName == 'Team Leader - MS FABRICATION TEAM' || $roleName == 'Team Leader - SS Fabrication Team' || $roleName == 'Team Leader - FITTING TEAM')
                         <button class="btn btn-primary btn-sm allocateEmployee mb-1" style="width:170px;" data-quotationid="{{ $quotation->id }}" data-productid="{{ $quotationProduct->product_id }}" data-bom-id="{{ $bom->bom_id }}" data-stage="{{ $bom->stage }}" ><i class="fa fa-user-plus" aria-hidden="true"></i> Employee</button>
-  {{--  <button class="btn btn-warning btn-sm addProductionQty btn-sm" data-datatype="bom" style="width:170px" data-quotationid="{{ $quotation->id }}" data-quantity="{{ $quotationProduct->quantity }}" data-productid="{{ $quotationProduct->product_id }}" ></i> Update</button>  --}}
+  {{--  <button class="btn btn-warning btn-sm addProductionQty btn-sm" data-datatype="product" style="width:170px" data-quotationid="{{ $quotation->id }}" data-quantity="{{ $quotationProduct->production_stock }}" data-productid="{{ $quotationProduct->product_id }}" ></i> Update</button>  --}}
+
+  @php
+    $empColumn = null;
+
+    if($teamId == 1){
+        $empColumn = 'ms_fabrication_emp_id';
+    } elseif($teamId == 2){
+        $empColumn = 'ss_fabrication_emp_id';
+    } elseif($teamId == 3){
+        $empColumn = 'fitting_emp_id';
+    }
+@endphp
+                @if($teamId)
+    @if($employeeValidation = App\Models\QuotationProducts::where('product_id', $quotationProduct->product_id)
+        ->where('quotation_id', $quotation->id)
+        ->whereNull($empColumn)
+        ->first())
+
+        <div class="alert alert-warning mt-3" role="alert">
+            Please Allocate Employee First
+        </div>
+
+    @else
+        <button class="btn btn-warning btn-sm addProductionQty"
+                data-datatype="product"
+                style="width:170px"
+                data-quotationid="{{ $quotation->id }}"
+                data-quantity="{{ $quotationProduct->production_stock }}"
+                data-productid="{{ $quotationProduct->product_id }}">
+            Accept
+        </button>
+    @endif
+@endif
+
+
+
                 @endif
 
                 @if($roleName == 'Team Leader - Packing Team')
                     @if($quotationProduct->packing_team_accept_status == 0)
-                            <button class="btn btn-warning btn-sm addProductionQty btn-sm" data-datatype="product" style="width:170px" data-quotationid="{{ $quotation->id }}" data-quantity="{{ $quotationProduct->quantity }}" data-productid="{{ $quotationProduct->product_id }}" ></i> Accept</button>
+                            <button class="btn btn-warning mb-3 btn-sm addProductionQty btn-sm w-100" data-datatype="product" data-team="packing" style="width:170px" data-quotationid="{{ $quotation->id }}" data-quantity="{{ $quotationProduct->production_stock }}" data-productid="{{ $quotationProduct->product_id }}" ></i> Accept</button>
+                    @endif
+
+                    @if($quotationProduct->available_stock != null)
+                    <div class="alert" style="background-color:#f76d30" role="alert">
+                        <span style="color:#fff">Take {{ $quotationProduct->available_stock }} quantity from the product stock</span>
+                    </div>
                     @endif
                 @endif
                  @if($roleName == 'Team Leader - Dispatch Team')
                     {{--  <button class="btn btn-primary btn-sm completeProduct btn-sm" style="width:170px" data-quotationid="{{ $quotation->id }}" data-productid="{{ $quotationProduct->product_id }}" data-bom-id="{{ $bom->bom_id }}" data-stage="{{ $bom->stage }}" > Done</button>  --}}
-                    <a href="/barcode-print/{{ $quotationProduct->product_id }}" class="btn btn-primary" style="width:170px;margin-top:10px"><i class="fa fa-print" aria-hidden="true"></i> &nbsp;&nbsp; Print</a>
+                    <a href="/barcode-print/{{ $quotationProduct->product_id }}" class="btn btn-primary mb-3" style="width:170px;margin-top:10px"><i class="fa fa-print" aria-hidden="true"></i> &nbsp;&nbsp; Print</a>
+
+                    @if($quotationProduct->available_stock != null)
+                    <div class="alert" style="background-color:#f76d30" role="alert">
+                        <span style="color:#fff">Take {{ $quotationProduct->available_stock }} quantity from the product stock</span>
+                    </div>
+                    @endif
+
                     @else
-                    <button class="btn btn-primary btn-sm statusUpdate btn-sm mt-2" style="width:170px" data-quotationid="{{ $quotation->id }}" data-productid="{{ $quotationProduct->product_id }}" data-bom-id="{{ $bom->bom_id }}" data-stage="{{ $bom->stage }}" ><i class="fa fa-check" aria-hidden="true"></i> Update</button>
+                    {{--  <button class="btn btn-primary btn-sm statusUpdate btn-sm mt-2" style="width:170px" data-quotationid="{{ $quotation->id }}" data-productid="{{ $quotationProduct->product_id }}" data-bom-id="{{ $bom->bom_id }}" data-stage="{{ $bom->stage }}" ><i class="fa fa-check" aria-hidden="true"></i> Update</button>  --}}
                  @endif
 
                 @if($roleName == 'Team Leader - PIPE BENDING TEAM')
-                    <button class="btn btn-warning btn-sm addProductionQty btn-sm" data-datatype="bom" style="width:170px" data-quotationid="{{ $quotation->id }}" data-quantity="{{ $quotationProduct->quantity }}" data-productid="{{ $quotationProduct->product_id }}" ></i> Update</button>
+                    <button class="btn btn-warning btn-sm addProductionQty btn-sm" data-datatype="bom" style="width:170px" data-quotationid="{{ $quotation->id }}" data-quantity="{{ $quotationProduct->production_stock }}" data-productid="{{ $quotationProduct->product_id }}" ></i> Update</button>
+                @endif
+                @if($roleName == 'Team Leader - LASER CUTTING TEAM')
+                    <button class="btn btn-warning btn-sm addProductionQty btn-sm" data-datatype="bom" style="width:170px" data-quotationid="{{ $quotation->id }}" data-quantity="{{ $quotationProduct->production_stock }}" data-productid="{{ $quotationProduct->product_id }}" ></i> Update</button>
+                @endif
+                @if($roleName == 'Team Leader - MACHINE SHOP TEAM')
+                    <button class="btn btn-warning btn-sm addProductionQty btn-sm" data-datatype="bom" style="width:170px" data-quotationid="{{ $quotation->id }}" data-quantity="{{ $quotationProduct->production_stock }}" data-productid="{{ $quotationProduct->product_id }}" ></i> Update</button>
                 @endif
             @if($roleName == 'Team Leader - MS FABRICATION TEAM')
                 @if(!empty($quotationProduct->ms_fabrication_emp_id))
@@ -330,3 +396,5 @@
 </div>
         </div>
 </div>
+
+ @include('pages.dashboard.modals.partial_dispatch_modal')

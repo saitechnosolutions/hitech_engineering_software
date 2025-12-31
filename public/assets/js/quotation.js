@@ -15,6 +15,10 @@ $(document).on("change", ".quotationproduct", function(){
         });
 });
 
+$(document).ready(function(){
+    $(".quotationproduct").trigger("change");
+});
+
 
 function getTotalByCustomerType(quantity, rate, wholesale_price) {
     var customerType = $("#customer_type").val();
@@ -66,12 +70,21 @@ function calculateRowAmount($row) {
     return amount;
 }
 
-$(document).on("change", "#customer_type", function() {
+function runCustomerTypeCalculation(){
     $("tr").each(function() {
         calculateRowAmount($(this));
     });
     calculateGSTAndTotal();
+}
+
+$(document).on("change", "#customer_type", function() {
+    runCustomerTypeCalculation();
 });
+
+$(document).ready(function(){
+    runCustomerTypeCalculation();
+});
+
 
 
 
@@ -89,7 +102,7 @@ function calculateSubtotal() {
 function calculateGSTAndTotal() {
     var subtotal = calculateSubtotal();
 
-
+    var customer_type = $("#customer_type").val();
     var cgstPerc = parseFloat($(".cgst_percentage").val()) || 0;
     var cgstAmount = subtotal * (cgstPerc / 100);
     $(".cgst_amount").val(cgstAmount.toFixed(2));
@@ -104,18 +117,33 @@ function calculateGSTAndTotal() {
     var igstAmount = subtotal * (igstPerc / 100);
     $(".igst_amount").val(igstAmount.toFixed(2));
 
+    if(customer_type == 'mrp_customer')
+    {
+        var totalAmount = subtotal;
+    }
+    else
+    {
+        var totalAmount = subtotal + cgstAmount + sgstAmount + igstAmount;
 
-    var totalAmount = subtotal + cgstAmount + sgstAmount + igstAmount;
+    }
     $(".total_amount").val(totalAmount.toFixed(2));
 }
 
-$(document).on("input", ".quantity, .disc_percentage, .cgst_percentage, .sgst_percentage, .igst_percentage", function() {
-
-
-    var $row = $(this).closest("tr");
-    calculateRowAmount($row);
+function runAllCalculations(){
+    $("tr").each(function(){
+        calculateRowAmount($(this));
+    });
     calculateGSTAndTotal();
+}
+
+$(document).on("input", ".quantity, .disc_percentage, .cgst_percentage, .sgst_percentage, .igst_percentage", function() {
+    runAllCalculations();
 });
+
+$(document).ready(function(){
+    runAllCalculations();
+});
+
 
 $(document).on('change', "#customer_id", function() {
     var customerId = $("#customer_id").val();
@@ -154,9 +182,11 @@ $(document).on("click", "#option_1, #option_2, #option_3, #option_4, #option_5, 
 });
 
 
+$(document).on("submit", ".moveToProduction", function(e) {
+    e.preventDefault();
 
-$(document).on("click", ".moveToProduction", function() {
-    var id = $(this).data("id");
+    var form = this;
+    var url = form.getAttribute('action');
 
     Swal.fire({
         title: "Are you sure?",
@@ -168,30 +198,34 @@ $(document).on("click", ".moveToProduction", function() {
         confirmButtonText: "Yes, Move to Production!",
     }).then((result) => {
         if (result.isConfirmed) {
+
             $.ajax({
                 method: "POST",
-                url: "/move_to_production",
-                data: {
-                    _token: $('meta[name="csrf-token"]').attr('content'),
-                    id: id
-                },
+                url: url,
+                data: $(form).serialize(),
                 success: function (data) {
+
+                       console.log(data);
                     if (data && data.status === 'success') {
                         toastr.success(data.message);
-                        setTimeout(function () {
-                            location.reload();
-                        }, 1000);
+                        setTimeout(() => location.reload(), 1000);
                     } else {
                         toastr.error(data.message || 'Unexpected server response.');
                     }
+
+                    if (data.redirectTo) {
+                         window.location.href = data.redirectTo;
+                    }
                 },
-                error: function (xhr) {
+                error: function () {
                     toastr.error("Failed to move to production.");
                 }
             });
+
         }
     });
 });
+
 
 
 $(function () {
@@ -248,3 +282,64 @@ $(document).on("click", ".invoiceComplete", function() {
     //     }
     // });
 });
+
+
+$(document).on("keyup", ".stockentry", function(){
+
+    var row = $(this).closest('tr');
+
+    var productId = row.find('.product_id').val();
+    console.log(productId);
+    var availableStock = parseInt(row.find('.product_available_stock').val() || 0);
+
+    // Clear old error
+    row.find('.error-message').text("");
+
+    // 👉 If stock is 0 or less → no validation needed
+    if(availableStock <= 0){
+        return;
+    }
+
+    // Sum all rows of same product
+    var totalEntered = 0;
+
+    $('.product_id').each(function(index){
+        if($(this).val() == productId){
+            var qty = parseInt($('.stockentry').eq(index).val() || 0);
+            totalEntered += qty;
+        }
+    });
+
+    if(totalEntered > availableStock){
+        row.find('.error-message')
+            .text("Stock exceeded! Only " + availableStock + " available. already allocated")
+            .css("color", "red");
+    }
+
+     if(totalEntered >= availableStock){
+        // lock all other same product inputs except current typing row
+        $('.product_id').each(function(index){
+            if($(this).val() == productId){
+
+                var input = $('.stockentry').eq(index);
+
+                if(!row.is($(this).closest('tr'))){
+                    input.prop("readonly", true);
+                    input.addClass("bg-light");
+                }
+            }
+        });
+    }else{
+        // stock not fully consumed → enable back all
+        $('.product_id').each(function(index){
+            if($(this).val() == productId){
+                var input = $('.stockentry').eq(index);
+                input.prop("readonly", false);
+                input.removeClass("bg-light");
+            }
+        });
+    }
+
+});
+
+

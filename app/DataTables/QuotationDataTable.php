@@ -3,14 +3,16 @@
 namespace App\DataTables;
 
 use App\Models\Quotation;
-use Illuminate\Database\Eloquent\Builder as QueryBuilder;
-use Yajra\DataTables\EloquentDataTable;
-use Yajra\DataTables\Html\Builder as HtmlBuilder;
+use App\Models\LRDocuments;
+use App\Models\PaymentDetails;
 use Yajra\DataTables\Html\Button;
 use Yajra\DataTables\Html\Column;
+use Yajra\DataTables\EloquentDataTable;
 use Yajra\DataTables\Html\Editor\Editor;
 use Yajra\DataTables\Html\Editor\Fields;
 use Yajra\DataTables\Services\DataTable;
+use Yajra\DataTables\Html\Builder as HtmlBuilder;
+use Illuminate\Database\Eloquent\Builder as QueryBuilder;
 
 class QuotationDataTable extends DataTable
 {
@@ -45,7 +47,81 @@ class QuotationDataTable extends DataTable
 ->addColumn('production_status', function($query){
     return removeUnderscoreText($query->production_status);
 })
-->rawColumns(['download', 'action'])
+->addColumn('payment_details', function($query){
+
+    $paymentDetails = PaymentDetails::where('quotation_id', $query->id)->get();
+
+    $html = '<table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>S.No</th>
+                        <th>Payment Date</th>
+                        <th>Paid Amount</th>
+                        <th>Remarks</th>
+                    </tr>
+                </thead>
+                <tbody>';
+
+    if($paymentDetails->count()){
+        $i = 1;
+        foreach($paymentDetails as $payment){
+            $html .= '<tr>
+                        <td>'.$i++.'</td>
+                        <td>'.($payment->payment_date ?? '-').'</td>
+                        <td>'.$payment->amount.'</td>
+                        <td>'.$payment->remarks.'</td>
+                      </tr>';
+        }
+    } else {
+        $html .= '<tr>
+                    <td colspan="4" style="text-align:center">No Payments</td>
+                  </tr>';
+    }
+
+    $html .= '</tbody></table>';
+
+    return $html;
+})
+
+->addColumn('lr_details', function($query){
+
+    $paymentDetails = PaymentDetails::where('quotation_id', $query->id)->get();
+
+    $html = '<table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>S.No</th>
+                        <th>Payment Date</th>
+                        <th>Paid Amount</th>
+                        <th>Remarks</th>
+                    </tr>
+                </thead>
+                <tbody>';
+
+    if($paymentDetails->count()){
+        $i = 1;
+        foreach($paymentDetails as $payment){
+            $html .= '<tr>
+                        <td>'.$i++.'</td>
+                        <td>'.($payment->payment_date ?? '-').'</td>
+                        <td>'.$payment->amount.'</td>
+                        <td>'.$payment->remarks.'</td>
+                      </tr>';
+        }
+    } else {
+        $html .= '<tr>
+                    <td colspan="4" style="text-align:center">No Payments</td>
+                  </tr>';
+    }
+
+    $html .= '</tbody></table>';
+
+    return $html;
+})
+
+
+
+->rawColumns(['download', 'action', 'payment_details', 'lr_details'])
             ->setRowId('id');
     }
 
@@ -88,6 +164,8 @@ class QuotationDataTable extends DataTable
             Column::make('priority')->title('Priority'),
             Column::make('production_status')->title('Production Status'),
             Column::make('action')->title('Action'),
+            Column::make('payment_details')->title('Payment Details'),
+            // Column::make('lr_details')->title('LR Details'),
 
         ];
     }

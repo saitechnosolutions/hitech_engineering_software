@@ -34,7 +34,22 @@ class TaskReportDataTable extends DataTable
      */
     public function query(Task $model): QueryBuilder
     {
-        return $model->newQuery();
+        $query = $model->newQuery()->with('assignedTo');
+
+        // Apply filters if present
+        if ($this->request()->has('employeeIds') && !empty($this->request()->employeeIds)) {
+            $query->where('assigned_to', $this->request()->employeeIds);
+        }
+
+        if ($this->request()->has('status') && !empty($this->request()->status)) {
+            $query->where('status', $this->request()->status);
+        }
+
+        if ($this->request()->has('fromdate') && $this->request()->has('todate') && !empty($this->request()->fromdate) && !empty($this->request()->todate)) {
+            $query->whereBetween('task_date', [$this->request()->fromdate, $this->request()->todate]);
+        }
+
+        return $query;
     }
 
     /**
@@ -43,12 +58,12 @@ class TaskReportDataTable extends DataTable
     public function html(): HtmlBuilder
     {
         return $this->builder()
-        ->setTableId('taskReport')
-        ->columns($this->getColumns())
-        ->minifiedAjax()
+            ->setTableId('taskReport')
+            ->columns($this->getColumns())
+            ->minifiedAjax()
 
-        ->orderBy(1)
-        ->selectStyleSingle();
+            ->orderBy(1)
+            ->selectStyleSingle();
     }
 
     /**
@@ -57,7 +72,7 @@ class TaskReportDataTable extends DataTable
     public function getColumns(): array
     {
         return [
-           Column::make('id')->title('S.No'),
+            Column::make('id')->title('S.No'),
             Column::make('title')->title('Title'),
             Column::make('task_date')->title('Task Date'),
             Column::make('task_details')->title('Task Details'),
