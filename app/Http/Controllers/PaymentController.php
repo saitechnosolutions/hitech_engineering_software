@@ -21,32 +21,28 @@ class PaymentController extends Controller
         $multipleImages = $request->reference_images;
 
         $paymentImageUrl = [];
-        if($multipleImages)
-        {
-            foreach($multipleImages as $image)
-            {
-                    $uploadImage = $image;
-                    $originalFilename = time() . "-" . str_replace(' ', '_', $uploadImage->getClientOriginalName());
-                    $destinationPath = 'payment_images/';
-                    $uploadImage->move($destinationPath, $originalFilename);
-                    $paymentImageUrl[] = '/payment_images/' . $originalFilename;
+        if ($multipleImages) {
+            foreach ($multipleImages as $image) {
+                $uploadImage = $image;
+                $originalFilename = time() . "-" . str_replace(' ', '_', $uploadImage->getClientOriginalName());
+                $destinationPath = 'payment_images/';
+                $uploadImage->move($destinationPath, $originalFilename);
+                $paymentImageUrl[] = '/payment_images/' . $originalFilename;
             }
-        }
-        else
-        {
+        } else {
             $paymentImageUrl = null;
         }
 
         $quotation = Quotation::find($request->quotation_id);
         $collectableAmount = $quotation->total_collectable_amount;
 
-        if($request->amount > $collectableAmount){
+        if ($request->amount > $collectableAmount) {
 
             return response()->json([
-            "status" => 'error',
-            "message" => 'Payment amount cannot exceed Collectable Amount',
+                "status" => 'error',
+                "message" => 'Payment amount cannot exceed Collectable Amount',
 
-        ]);
+            ]);
         }
 
         $paymentEntry = new PaymentDetails();
@@ -60,8 +56,7 @@ class PaymentController extends Controller
 
         $totalReceivedAmount = $paymentEntry->where('quotation_id', $request->quotation_id)->sum('amount');
 
-        if($collectableAmount === $totalReceivedAmount)
-        {
+        if ($collectableAmount === $totalReceivedAmount) {
             $quotation->update([
                 "payment_status" => 'completed'
             ]);
@@ -74,32 +69,55 @@ class PaymentController extends Controller
         ]);
     }
 
-   public function paymentReportFilter(Request $request)
-{
-    $quotationId = $request->quotationId;
-    $fromDate = $request->fromdate;
-    $toDate = $request->todate;
 
-    $payments = PaymentDetails::with('quotation')
+    public function paymentReportFilter(Request $request)
+    {
+        $quotationId = $request->quotationId;
+        $fromDate    = $request->fromdate;
+        $toDate      = $request->todate;
+        $companyName = $request->company_name;
+        $rm          = $request->rm;
 
-        ->when($quotationId, function ($q) use ($quotationId) {
-            $q->where('quotation_id', $quotationId);
-        })
+        $payments = PaymentDetails::with(['quotation.customer', 'rm'])
 
-        ->when($fromDate && $toDate, function ($q) use ($fromDate, $toDate) {
-            $q->whereBetween('payment_date', [$fromDate, $toDate]);
-        })
+            ->when($quotationId, function ($q) use ($quotationId) {
+                $q->where('quotation_id', $quotationId);
+            })
 
-        ->orderBy('payment_date', 'desc')
-        ->get();
+            ->when($fromDate && $toDate, function ($q) use ($fromDate, $toDate) {
+                $q->whereBetween('payment_date', [$fromDate, $toDate]);
+            })
 
-       $paymentDetails = new PaymentFilterCollection($payments); 
-       
-    return response()->json([
-        'status' => 'success',
-        'data' => $paymentDetails
-    ]);
-}
+            ->when($companyName, function ($q) use ($companyName) {
+                $q->whereHas('quotation.customer', function ($query) use ($companyName) {
+                    $query->where('customer_name', $companyName);
+                });
+            })
 
+            ->when($rm, function ($q) use ($rm) {
+                $q->whereHas('rm', function ($query) use ($rm) {
+                    $query->where('name', $rm);
+                });
+            })
 
+            ->orderBy('payment_date', 'desc')
+            ->get();
+
+        // 🔹 Flatten data manually (IMPORTANT)
+        $data = $payments->map(function ($payment) {
+            return [
+                'payment_date'  => $payment->payment_date,
+                'quotation_no'  => optional($payment->quotation)->quotation_no,
+                'customer_name' => optional($payment->quotation?->customer)->customer_name,
+                'amount'        => $payment->amount,
+                'remarks'       => $payment->remarks,
+            ];
+        });
+
+        return response()->json([
+            'status' => 'success',
+            'data'   => $data,
+            'total'  => number_format($payments->sum('amount'), 2),
+        ]);
+    }
 }

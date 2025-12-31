@@ -17,17 +17,6 @@
 
                                     <div style="display:flex;justify-content:space-between">
                                         <h6>Filter</h6>
-                                        <div>
-                                            <div class='dropdown'>
-                                            <button class='btn btn-secondary dropdown-toggle' type='button' id='dropdownMenuButton' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false'>
-                                                        <i class='fa fa-download' aria-hidden='true'></i>
-                                            </button>
-                                            <div class='dropdown-menu' aria-labelledby='dropdownMenuButton'>
-                                                <a class='dropdown-item' >Excel</a>
-                                                <a class='dropdown-item ' >PDF</a>
-                                            </div>
-                                            </div>
-                                        </div>
                                     </div>
 
                                 </div>
@@ -95,6 +84,17 @@
                                 <div class="card-header">
                                     <div style="display:flex;justify-content:space-between">
                                         <h4 class="mt-0 header-title">Task Report</h4>
+                                        <div>
+                                            <div class='dropdown'>
+                                            <button class='btn btn-secondary dropdown-toggle' type='button' id='dropdownMenuButton' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false'>
+                                                        <i class='fa fa-download' aria-hidden='true'></i>
+                                            </button>
+                                            <div class='dropdown-menu' aria-labelledby='dropdownMenuButton'>
+                                                <a class='dropdown-item' id="excelExport" href="/task-report-export-excel" target="_blank">Excel</a>
+                                                <a class='dropdown-item' id="pdfExport" href="/task-report-export-pdf" target="_blank">PDF</a>
+                                            </div>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
 

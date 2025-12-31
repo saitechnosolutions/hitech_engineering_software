@@ -58,4 +58,6 @@ class Quotation extends Model
     {
         return $this->hasMany(InvoiceRequestProducts::class, 'quotation_id', 'id');
     }
+
+    
 }
