@@ -75,6 +75,12 @@ class QuotationController extends Controller
         $quotation->customer_type = $request->customer_type;
         $quotation->total_actual_amount = $request->total_amount;
         $quotation->total_collectable_amount = $request->collection_amount;
+        $quotation->cgst_percentage = $request->cgst_percentage;
+        $quotation->cgst_value = $request->cgst_amount;
+        $quotation->sgst_percentage = $request->sgst_percentage;
+        $quotation->sgst_value = $request->sgst_amount;
+        $quotation->igst_percentage = $request->igst_percentage;
+        $quotation->igst_value = $request->igst_amount;
         $quotation->save();
 
 

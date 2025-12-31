@@ -4,11 +4,11 @@ $(document).on("change", ".quotationproduct", function(){
 
     axios.get('/quotationproduct/'+productId)
         .then(response => {
-            console.log(response.data.brand);
+
             row.find(".hsn_no").val(response.data.hsn_code);
             row.find(".part_no").val(response.data.part_number);
             row.find(".rate").val(response.data.mrp_price);
-            row.find(".amount").val(response.data.mrp_price * 1);
+            // row.find(".amount").val(response.data.mrp_price * 1);
         })
         .catch(error => {
             console.error(error);
@@ -56,7 +56,10 @@ function getTotalByCustomerType(quantity, rate, wholesale_price) {
 // }
 
 function calculateRowAmount($row) {
+
+
     var quantity = parseFloat($row.find(".quantity").val()) || 0;
+
     var rate = parseFloat($row.find(".rate").val()) || 0;
     var wholesale_price = parseFloat($row.find(".wholesale_price").val()) || 0;
     var disc_percentage = parseFloat($row.find(".disc_percentage").val()) || 0;
@@ -67,6 +70,7 @@ function calculateRowAmount($row) {
     var amount = total - discount;
 
     $row.find(".amount").val(amount.toFixed(2));
+
     return amount;
 }
 
@@ -130,6 +134,7 @@ function calculateGSTAndTotal() {
 }
 
 function runAllCalculations(){
+
     $("tr").each(function(){
         calculateRowAmount($(this));
     });

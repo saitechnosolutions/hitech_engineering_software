@@ -95,7 +95,7 @@
 
     <!-- Datatable init js -->
     <script src="/assets/pages/datatables.init.js"></script>
-    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script src="/assets/crud/create.js"></script>
     <script src="/assets/crud/delete.js"></script>
     <script src="/assets/js/index.js"></script>

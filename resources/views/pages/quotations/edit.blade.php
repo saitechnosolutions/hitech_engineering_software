@@ -189,7 +189,7 @@
                                                 <input type="text" name="disc_percentage[]" class="form-control disc_percentage" value="{{ $quotationProducts->discount_percentage }}">
                                             </td>
                                             <td>
-                                                <input type="text" name="amount[]" class="form-control amount" readonly>
+                                                <input type="text" name="amount[]" class="form-control amount" value="{{ $quotationProducts->total_amount }}" readonly>
                                             </td>
                                             <td>
                                                 <button type="button" class="btn btn-danger removeRow">-</button>
@@ -208,36 +208,36 @@
                                     <tr>
 
                                             <td><b>SUB TOTAL (₹)</b></td>
-                                            <td colspan="2"><input type="text" name="sub_total" class="form-control subtotal" readonly></td>
+                                            <td colspan="2"><input type="text" name="sub_total" class="form-control subtotal" value="{{ $quotation->total_actual_amount }}" readonly></td>
                                         </tr>
                                     <tr>
                                         <th>CGST (%)</th>
-                                        <td><input type="text" class="form-control cgst_percentage" name="cgst_percentage"></td>
+                                        <td><input type="text" class="form-control cgst_percentage" name="cgst_percentage" value="{{ $quotation->cgst_percentage }}"></td>
                                         <td>
-                                            <input type="text" class="form-control cgst_amount" name="cgst_amount" readonly>
+                                            <input type="text" class="form-control cgst_amount" name="cgst_amount" value="{{ $quotation->cgst_amount }}" readonly>
                                         </td>
                                     </tr>
                                     <tr>
                                         <th>SGST (%)</th>
-                                        <td><input type="text" class="form-control sgst_percentage" name="sgst_percentage"></td>
+                                        <td><input type="text" class="form-control sgst_percentage" name="sgst_percentage" value="{{ $quotation->sgst_percentage }}"></td>
                                         <td>
-                                            <input type="text" class="form-control sgst_amount" name="sgst_amount" readonly>
+                                            <input type="text" class="form-control sgst_amount" name="sgst_amount" value="{{ $quotation->sgst_value }}" readonly>
                                         </td>
                                     </tr>
                                     <tr>
                                         <th>IGST (%)</th>
-                                        <td><input type="text" class="form-control igst_percentage" name="igst_percentage"></td>
+                                        <td><input type="text" class="form-control igst_percentage" name="igst_percentage" value="{{ $quotation->igst_percentage }}"></td>
                                         <td>
-                                            <input type="text" class="form-control igst_amount" name="igst_amount" readonly>
+                                            <input type="text" class="form-control igst_amount" name="igst_amount" value="{{ $quotation->igst_value }}" readonly>
                                         </td>
                                     </tr>
                                     <tr>
                                         <th>TOTAL AMOUNT (₹)</th>
-                                        <td colspan="2"><input type="text" class="form-control total_amount" name="total_amount" readonly></td>
+                                        <td colspan="2"><input type="text" class="form-control total_amount" name="total_amount" value="{{ $quotation->total_actual_amount }}" readonly></td>
                                     </tr>
                                     <tr>
                                         <th>COLLECTION AMOUNT (₹)</th>
-                                        <td colspan="2"><input type="text" class="form-control" name="collection_amount"></td>
+                                        <td colspan="2"><input type="text" class="form-control" name="collection_amount" value="{{ $quotation->total_collectable_amount }}"></td>
                                     </tr>
 
                                 </table>
