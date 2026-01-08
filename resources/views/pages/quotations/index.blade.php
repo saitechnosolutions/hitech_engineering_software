@@ -32,7 +32,7 @@
                                     <div class="col-12 align-self-center text-center">
                                         <div class="m-l-10">
                                             <h5 class="mt-0 ">{{ $productionMovedQuotations->count() }}</h5>
-                                            <p class="mb-0 "><b>Production Moved</b></p>
+                                            <p class="mb-0 "><b>Production <br> Moved</b></p>
                                         </div>
                                     </div>
 
@@ -99,7 +99,7 @@
                                     <div class="col-12 align-self-center text-center">
                                         <div class="m-l-10 ">
                                             <h5 class="mt-0 ">{{ $quotationBatches->count() }}</h5>
-                                            <p class="mb-0 "><b>Batches</b></p>
+                                            <p class="mb-0 "><b>Total <br> Batches</b></p>
                                         </div>
                                     </div>
 
@@ -108,8 +108,17 @@
                         </div>
                     </div>
             </div>
+
+            @if($quotationProductCheck->count() > 0)
+                <div class="alert alert-danger" style="color:red" role="alert">
+                    {{ implode(", ", $quotationProductCheck->pluck('quotation_no')->toArray()) }} Please check this Quotations. Some Products are Not Moved Production.
+                </div>
+            @endif
+
+
                      <div class="row mt-3" id="option_1_data">
                         <div class="col-12">
+
                             <div class="card m-b-30">
                                 <div class="card-header">
                                     <div style="display:flex;justify-content:space-between">
@@ -476,7 +485,7 @@
                                                                     @if($batch->batch_status == 'pending')
                                                                         <span class="badge badge-danger" style="text-transform:capitalize">{{ $batch->batch_status }}</span>
                                                                         @elseif($batch->batch_status == 'processing')
-                                                                        <span class="badge badge-info" style="text-transform:capitalize">{{ $batch->batch_status }}</span>
+                                                                        <span class="badge badge-info" style="text-transform:capitalize">Moved</span>
                                                                         @else
                                                                         <span class="badge badge-success" style="text-transform:capitalize">{{ $batch->batch_status }}</span>
                                                                     @endif
@@ -491,7 +500,7 @@
                                                                         </button>
                                                                         <div class='dropdown-menu' aria-labelledby='dropdownMenuButton'>
 
-                                                                            <a class='dropdown-item' href='/quotation/edit/{$query->id}'>Edit</a>
+                                                                            <a class='dropdown-item' href="/batch/edit/{{ $batch->id }}">Edit</a>
                                                                             <a class='dropdown-item deleteBtn' data-url='/quotation/delete/{$query->id}'>Delete</a>
                                                                             <a class='dropdown-item' href="/ready-to-production/{{ $batch->id }}" >Move to Production</a>
                                                                         </div>

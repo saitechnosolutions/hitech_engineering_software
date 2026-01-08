@@ -11,7 +11,7 @@
     <div class="container-fluid">
         <div class="row mt-3">
 
-                    <form id="createFormSubmit" class="form-horizontal m-t-10" method="POST" action="{{ route('quotation.store') }}">
+                    <form id="createFormSubmit" class="form-horizontal m-t-10" method="POST" action="{{ route('quotation.update', $quotation->id) }}">
                     @csrf
 
                 <div class="col-lg-12">

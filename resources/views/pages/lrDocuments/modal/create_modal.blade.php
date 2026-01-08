@@ -10,7 +10,7 @@
         </button>
       </div>
       <div class="modal-body">
-        <div class="form-group">
+                                        <div class="form-group">
                                             <label>Select Quotation</label>
                                             <select class="form-control js-example-basic-single" name="quotation_id" style="width:100%">
                                                     <option>-- Choose Quotation No --</option>
@@ -21,7 +21,7 @@
                                                     @endif
                                                 </select>
                                         </div>
-                                       
+
                                         <div class="form-group">
                                             <label>Upload Documents</label>
                                             <input type="file" name="reference_images[]" class="form-control" multiple>
@@ -30,7 +30,7 @@
                                             <label>Remarks</label>
                                             <textarea class="form-control" name="remarks"></textarea>
                                         </div>
-                                      
+
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>

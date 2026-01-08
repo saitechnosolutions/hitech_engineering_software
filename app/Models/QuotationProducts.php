@@ -3,9 +3,12 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class QuotationProducts extends Model
 {
+
+    use SoftDeletes;
 
     protected $fillable = [
         "quotation_id",
@@ -21,7 +24,8 @@ class QuotationProducts extends Model
         "production_status",
         "partial_qty",
         "available_stock",
-        "production_stock"
+        "production_stock",
+
     ];
 
     public function product()

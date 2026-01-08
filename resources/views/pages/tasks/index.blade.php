@@ -243,18 +243,65 @@
                                                             <td>{{ $assignedTaskPending->status }}</td>
                                                             <td>{{ $assignedTaskPending->assignedTo->name }}</td>
                                                             <td>{{ $assignedTaskPending->createdBy->name }}</td>
-                                                            <td><img src="{{ $assignedTaskPending->create_task_image }}" class="img-fluid" style="width:40px"></td>
-                                                            <td><img src="{{ $assignedTaskPending->comple_task_image }}" class="img-fluid" style="width:40px"></td>
+                                                            <td>
+                                                                @php
+    $docs = $assignedTaskPending->created_task_images ?? [];
+
+    if (is_string($docs)) {
+        $decoded = json_decode($docs, true);
+        $docs = is_array($decoded) ? $decoded : [];
+    }
+@endphp
+
+@if(!empty($docs))
+    @foreach ($docs as $file)
+        @if(!empty($file))
+            <a href="{{ asset($file) }}" class="btn btn-success" download>
+                <i class="fa fa-download" aria-hidden="true"></i>
+            </a>
+        @endif
+    @endforeach
+@else
+    <span>No files uploaded</span>
+@endif
+
+                                                                {{--  <img src="{{ $assignedTaskPending->create_task_image }}" class="img-fluid" style="width:40px">  --}}
+                                                            </td>
+                                                            <td>
+
+                                                                 @php
+    $docs = $assignedTaskPending->completed_task_images ?? [];
+
+    if (is_string($docs)) {
+        $decoded = json_decode($docs, true);
+        $docs = is_array($decoded) ? $decoded : [];
+    }
+@endphp
+
+@if(!empty($docs))
+    @foreach ($docs as $file)
+        @if(!empty($file))
+            <a href="{{ asset($file) }}" class="btn btn-success" download>
+                <i class="fa fa-download" aria-hidden="true"></i>
+            </a>
+        @endif
+    @endforeach
+@else
+    <span>No files uploaded</span>
+@endif
+
+                                                                {{--  <img src="{{ $assignedTaskPending->comple_task_image }}" class="img-fluid" style="width:40px">  --}}
+                                                            </td>
                                                             <td>
                                                                 <div class='dropdown'>
-            <button class='btn btn-secondary dropdown-toggle' type='button' id='dropdownMenuButton' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false'>
-                <i class='fa fa-cog' aria-hidden='true'></i>
-            </button>
-            <div class='dropdown-menu' aria-labelledby='dropdownMenuButton'>
-                <a class='dropdown-item' >Edit</a>
-                <a class='dropdown-item' >Delete</a>
-            </div>
-            </div>
+                                                                    <button class='btn btn-secondary dropdown-toggle' type='button' id='dropdownMenuButton' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false'>
+                                                                        <i class='fa fa-cog' aria-hidden='true'></i>
+                                                                    </button>
+                                                                    <div class='dropdown-menu' aria-labelledby='dropdownMenuButton'>
+                                                                        <a class='dropdown-item' href="/tasks/edit/{{ $assignedTaskPending->id }}">Edit</a>
+                                                                        <a class='dropdown-item deleteBtn' data-url="/tasks/delete/{{ $assignedTaskPending->id }}" >Delete</a>
+                                                                    </div>
+                                                                    </div>
                                                             </td>
                                                         </tr>
                                                     @endforeach
@@ -311,8 +358,51 @@
                                                             <td>{{ $assignedTaskComplete->status }}</td>
                                                             <td>{{ $assignedTaskComplete->assignedTo->name }}</td>
                                                             <td>{{ $assignedTaskComplete->createdBy->name }}</td>
-                                                            <td><img src="{{ $assignedTaskComplete->create_task_image }}" class="img-fluid" style="width:40px"></td>
-                                                            <td><img src="{{ $assignedTaskComplete->comple_task_image }}" class="img-fluid" style="width:40px"></td>
+                                                            <td>
+                                                                 @php
+    $docs = $assignedTaskComplete->created_task_images ?? [];
+
+    if (is_string($docs)) {
+        $decoded = json_decode($docs, true);
+        $docs = is_array($decoded) ? $decoded : [];
+    }
+@endphp
+
+@if(!empty($docs))
+    @foreach ($docs as $file)
+        @if(!empty($file))
+            <a href="{{ asset($file) }}" class="btn btn-success" download>
+                <i class="fa fa-download" aria-hidden="true"></i>
+            </a>
+        @endif
+    @endforeach
+@else
+    <span>No files uploaded</span>
+@endif
+                                                            </td>
+                                                            <td>
+
+                                                                 @php
+    $docs = $assignedTaskComplete->completed_task_images ?? [];
+
+    if (is_string($docs)) {
+        $decoded = json_decode($docs, true);
+        $docs = is_array($decoded) ? $decoded : [];
+    }
+@endphp
+
+@if(!empty($docs))
+    @foreach ($docs as $file)
+        @if(!empty($file))
+            <a href="{{ asset($file) }}" class="btn btn-success" download>
+                <i class="fa fa-download" aria-hidden="true"></i>
+            </a>
+        @endif
+    @endforeach
+@else
+    <span>No files uploaded</span>
+@endif
+                                                            </td>
                                                             <td>
                                                                 {{ $assignedTaskComplete->completed_task_timestamp }}
                                                             </td>

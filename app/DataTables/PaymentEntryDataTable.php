@@ -30,8 +30,8 @@ class PaymentEntryDataTable extends DataTable
                 <i class='fa fa-cog' aria-hidden='true'></i>
             </button>
             <div class='dropdown-menu' aria-labelledby='dropdownMenuButton'>
-                <a class='dropdown-item' href='/roles/edit/{$query->id}'>Edit</a>
-                <a class='dropdown-item deleteBtn' data-url='/roles/delete/{$query->id}'>Delete</a>
+                <a class='dropdown-item' href='/payments/edit/{$query->id}'>Edit</a>
+                <a class='dropdown-item deleteBtn' data-url='/payments/delete/{$query->id}'>Delete</a>
             </div>
             </div>
                 ";

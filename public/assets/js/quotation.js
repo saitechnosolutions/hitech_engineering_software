@@ -9,6 +9,8 @@ $(document).on("change", ".quotationproduct", function(){
             row.find(".part_no").val(response.data.part_number);
             row.find(".rate").val(response.data.mrp_price);
             // row.find(".amount").val(response.data.mrp_price * 1);
+
+
         })
         .catch(error => {
             console.error(error);
@@ -22,6 +24,8 @@ $(document).ready(function(){
 
 function getTotalByCustomerType(quantity, rate, wholesale_price) {
     var customerType = $("#customer_type").val();
+
+
 
     if (customerType === 'mrp_customer') {
         return rate * quantity;
@@ -63,13 +67,26 @@ function calculateRowAmount($row) {
     var rate = parseFloat($row.find(".rate").val()) || 0;
     var wholesale_price = parseFloat($row.find(".wholesale_price").val()) || 0;
     var disc_percentage = parseFloat($row.find(".disc_percentage").val()) || 0;
+    var quotationAmount = parseFloat($row.find(".amount").val()) || 0;
 
     var total = getTotalByCustomerType(quantity, rate, wholesale_price);
 
     var discount = total * (disc_percentage / 100);
     var amount = total - discount;
 
-    $row.find(".amount").val(amount.toFixed(2));
+
+
+    if(amount != 0)
+    {
+        $row.find(".amount").val(amount.toFixed(2));
+    }
+    else
+    {
+        $row.find(".amount").val(quotationAmount.toFixed(2));
+    }
+
+
+
 
     return amount;
 }
@@ -141,12 +158,14 @@ function runAllCalculations(){
     calculateGSTAndTotal();
 }
 
-$(document).on("input", ".quantity, .disc_percentage, .cgst_percentage, .sgst_percentage, .igst_percentage", function() {
+$(document).on("input change keyup blur", ".quantity, .disc_percentage, .cgst_percentage, .sgst_percentage, .igst_percentage", function() {
     runAllCalculations();
 });
 
-$(document).ready(function(){
+$(document).on("DOMContentLoaded", function(){
+
     runAllCalculations();
+
 });
 
 
@@ -345,6 +364,42 @@ $(document).on("keyup", ".stockentry", function(){
         });
     }
 
+});
+
+$(document).on("click", ".removeTrash", function(e) {
+    e.preventDefault();
+
+    var quotationId = $(this).data("quotationid");
+
+    Swal.fire({
+        title: "Are you sure?",
+        text: "Do you want to revoke this quotation?",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonText: "Yes, Revoke",
+        cancelButtonText: "Cancel"
+    }).then((result) => {
+
+        if (result.isConfirmed) {
+
+            axios.get('/revoke_trash/' + quotationId)
+                .then(response => {
+
+                    Swal.fire({
+                        title: "Restored!",
+                        text: "Quotation successfully revoked",
+                        icon: "success"
+                    }).then(() => {
+                        location.reload();   // optional redirect / refresh
+                    });
+
+                })
+                .catch(error => {
+                    Swal.fire("Error!", "Something went wrong!", "error");
+                    console.error(error);
+                });
+        }
+    });
 });
 
 

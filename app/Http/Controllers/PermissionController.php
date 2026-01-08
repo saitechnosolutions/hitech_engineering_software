@@ -27,4 +27,40 @@ class PermissionController extends Controller
             "redirectTo" => '/permissions'
         ]);
     }
+
+    public function edit($id)
+    {
+        $permission = Permission::find($id);
+
+        return view('pages.permissions.edit', compact('permission'));
+    }
+
+    public function update(Request $request, $id)
+    {
+        $permission = Permission::find($id);
+
+        $permission->update([
+            "name" => $request->name,
+            "navbar_id" => $request->navbar_section,
+        ]);
+
+        return response()->json([
+            "status" => 'success',
+            "message" => 'Permission Updated Successfully',
+            "redirectTo" => '/permissions'
+        ]);
+    }
+
+    public function delete($id)
+    {
+        $permission = Permission::findOrFail($id);
+
+        $permission->delete();
+
+        return response()->json([
+            "status" => 'success',
+            "message" => 'Permission Deleted Successfully',
+            "redirectTo" => '/permissions'
+        ]);
+    }
 }

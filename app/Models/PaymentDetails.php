@@ -3,9 +3,20 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class PaymentDetails extends Model
 {
+    use SoftDeletes;
+    
+    protected $fillable = [
+        "quotation_id",
+        "amount",
+        "payment_date",
+        "remarks",
+        "reference_images",
+        "entered_by"
+    ];
 
     protected $casts = [
         "reference_images" => 'json'

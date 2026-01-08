@@ -38,6 +38,21 @@ class RoleController extends Controller
         return view('pages.roles.edit', compact('role'));
     }
 
+    public function update(Request $request, $id)
+    {
+        $role = Role::find($id);
+
+        $role->update([
+            "name" => $request->name
+        ]);
+
+        return response()->json([
+            "status" => 'success',
+            "message" => 'Role Updated Successfully',
+            "redirectTo" => '/roles'
+        ]);
+    }
+
     public function delete($id)
     {
         $role = Role::find($id);
@@ -71,5 +86,5 @@ class RoleController extends Controller
 
         return redirect()->back()->with('success', 'Permissions added');
     }
-  
+
 }

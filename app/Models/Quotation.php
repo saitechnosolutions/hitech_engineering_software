@@ -4,10 +4,11 @@ namespace App\Models;
 
 use App\Models\InvoiceRequestProducts;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Quotation extends Model
 {
-
+    use SoftDeletes;
     protected $fillable = [
         "quotation_no",
         "quotation_date",
@@ -31,7 +32,10 @@ class Quotation extends Model
         "production_status",
         "dispatch_team_id",
         "payment_status",
-        "customer_type"
+        "customer_type",
+        "deleted_at",
+        "quotation_edit_count",
+        "total_collectable_amount"
     ]
     ;
     public function customer()
@@ -59,5 +63,5 @@ class Quotation extends Model
         return $this->hasMany(InvoiceRequestProducts::class, 'quotation_id', 'id');
     }
 
-    
+
 }

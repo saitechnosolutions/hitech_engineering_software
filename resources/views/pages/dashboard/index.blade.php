@@ -39,7 +39,7 @@
     @elseif($roleId == 3)
         @include('pages.dashboard.sections.accounts_dashboard', ['invoiceRequests' => $invoiceRequests, 'activeOrdersCount' => $activeOrdersCount, 'retailOrdersCount' => $retailOrdersCount, 'retailOrdersCountCompleted' => $retailOrdersCountCompleted])
     @else
-        @include('pages.dashboard.sections.tl_dashboard', ['quotations' => $quotations, 'role' => $roleId, 'teamIds' => $teamIds, 'roleName' => $roleName, 'inProductionCount' => $inProductionCount])
+        @include('pages.dashboard.sections.tl_dashboard', ['quotations' => $quotations, 'role' => $roleId, 'teamIds' => $teamIds, 'roleName' => $roleName, 'inProductionCount' => $inProductionCount, 'quotationProductCheck' => $quotationProductCheck])
 
     @endif
 

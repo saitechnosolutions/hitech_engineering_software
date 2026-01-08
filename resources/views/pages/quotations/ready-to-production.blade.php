@@ -44,6 +44,7 @@
                                                     <th>Quotation Qty</th>
                                                     <th>Stock Usage Qty Entry</th>
                                                     <th>Production Qty Entry</th>
+                                                    <th>Production Status</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
@@ -60,12 +61,19 @@
                                                             <td>
                                                                 <input type="hidden" name="product_id[]" class="product_id" value="{{ $quoteProducts->product_id }}">
                                                                 <input type="hidden" name="product_available_stock[]" class="product_available_stock" value="{{ $quoteProducts->product->stock_qty }}">
-                                                                <input type="number" name="stock_entry[]" class="form-control stockentry" placeholder="Enter Qty" max="{{ $quoteProducts?->product?->stock_qty }}">
+                                                                <input type="number" name="stock_entry[]" class="form-control stockentry" placeholder="Enter Qty" max="{{ $quoteProducts?->product?->stock_qty }}" value="{{ $quoteProducts->available_stock ?? '' }}">
 
                                                                 <span class="error-message"></span>
                                                             </td>
                                                             <td>
-                                                                <input type="number" name="production_stock_entry[]" class="form-control production_stock_entry" placeholder="Enter Qty" max="{{ $quoteProducts?->quantity }}">
+                                                                <input type="number" name="production_stock_entry[]" class="form-control production_stock_entry" placeholder="Enter Qty" max="{{ $quoteProducts?->quantity }}" value="{{ $quoteProducts->production_stock ?? '' }}">
+                                                            </td>
+                                                            <td>
+                                                                @if($quoteProducts->production_status == 'pending')
+                                                                    <span class="badge bg-danger text-white">Not Moved</span>
+                                                                    @else
+                                                                    <span class="badge bg-success text-white">Production Moved</span>
+                                                                @endif
                                                             </td>
                                                         </tr>
                                                     @endforeach

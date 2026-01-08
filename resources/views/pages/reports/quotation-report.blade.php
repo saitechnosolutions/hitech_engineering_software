@@ -35,7 +35,7 @@
                         @csrf
                         <div class="row">
 
-                            <div class="col-lg-4">
+                            <div class="col-lg-3">
                                 <div class="form-group">
                                     <label>Quotation</label>
                                     <div>
@@ -52,7 +52,7 @@
                                 </div>
                             </div>
 
-                            <div class="col-lg-4">
+                            <div class="col-lg-3">
                                 <div class="form-group">
                                     <label>Status</label>
                                     <div>
@@ -65,26 +65,26 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-lg-4">
+                            <div class="col-lg-3">
                                 <div class="form-group">
                                     <label>From Date</label>
                                     <input type="date" class="form-control" name="fromdate" id="fromDate">
                                 </div>
                             </div>
 
-                            <div class="col-lg-4">
+                            <div class="col-lg-3">
                                 <div class="form-group">
                                     <label>Todate</label>
                                     <input type="date" class="form-control" name="todate" id="toDate">
                                 </div>
                             </div>
-                            <div class="col-lg-4">
+                            <div class="col-lg-3">
                                 <div class="form-group">
                                     <label>Batch </label>
                                     <input type="date" class="form-control" name="batch" id="batch">
                                 </div>
                             </div>
-                            <div class="col-lg-4">
+                            <div class="col-lg-3">
                                 <div class="form-group">
                                     <label>Company Name </label>
                                     {{-- <input type="text" class="form-control" name="company_name" id="companyName"> --}}
@@ -101,7 +101,7 @@
                                     </select>
                                 </div>
                             </div>
-                            <div class="col-lg-4 mt-4">
+                            <div class="col-lg-3">
                                 <div class="form-group">
                                     <label>RM </label>
                                     {{-- <input type="text" class="form-control" name="rm" id="rm"> --}}
@@ -118,7 +118,7 @@
                                     </select>
                                 </div>
                             </div>
-                            <div class="col-lg-4">
+                            <div class="col-lg-3">
                                 <div class="form-group">
                                     <label>Dispatch Status</label>
                                     <select class="form-control js-example-basic-single" name="dispatch_status">
@@ -133,10 +133,8 @@
                             </div>
 
 
-
-
                             <div class="col-lg-3">
-                                <button type="submit" class="btn btn-danger mt-4">Filter</button>
+                                <button type="submit" class="btn btn-danger">Filter</button>
                             </div>
 
                         </div>

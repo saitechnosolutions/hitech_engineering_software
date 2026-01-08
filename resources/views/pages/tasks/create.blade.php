@@ -52,7 +52,7 @@
                     <div class="form-group">
                                         <label>End Date</label>
                                         <div>
-                                            <input type="date" class="form-control" required name="end_date"  placeholder=""/>
+                                            <input type="date" class="form-control end_date" name="end_date"   placeholder=""/>
                                         </div>
                                     </div>
                 </div>

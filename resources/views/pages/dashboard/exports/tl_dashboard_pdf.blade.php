@@ -232,7 +232,18 @@
 
     <table>
         <thead>
+            @foreach($quotations as $quotation)
+               @php
+
+                        $batchDetails = App\Models\QuotationBatch::whereJsonContains('quotation_ids', $quotation->id)->first();
+                            $quotationHeader = 'Quotation No: ' . $quotation->quotation_no . ' | Batch: ' . (formatDate($batchDetails?->batch_date) ?? 'N/A') . ' | Priority: ' . ($batchDetails?->priority ?? 'N/A') . ' | Customer: ' . ($quotation->customer?->customer_name ?? 'N/A') . ' | RM: ' . ($quotation->customer?->employee?->name ?? 'N/A');
+                        @endphp
+            @endforeach
+
             <tr>
+                <th colspan="5" class="text-center">{{ $quotationHeader }}</th>
+            </tr>
+                        <tr>
                 <th>Product Details</th>
                 <th>BOM Name</th>
                 <th>BOM Category</th>
@@ -292,15 +303,17 @@
                                     @endphp
 
                                     @foreach($list as $bom)
+
                                         <tr>
+
                                             @if($firstBom)
                                                 @php $firstBom = false; @endphp
                                                 <td>
-                                                    {{ $quotationHeader }}<br><br>
+
                                                     <strong>{{ $quotationProduct->product->part_number }}</strong><br>
                                                     {{ $quotationProduct->product->product_name }}<br>
                                                     Variation: {{ $quotationProduct->product->variation }}<br>
-                                                    <strong>Qty: {{ $quotationProduct->quantity }}</strong>
+                                                    <strong>Qty: {{ $quotationProduct->production_stock }}</strong>
                                                 </td>
                                             @else
                                                 <td></td>

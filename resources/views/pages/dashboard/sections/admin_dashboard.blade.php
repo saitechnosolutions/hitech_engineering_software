@@ -132,7 +132,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @if($orderDetails)
+                        @if($orderDetails->count() > 0)
                             @foreach ($orderDetails as $orderDetail)
                                 <tr>
                                     <td style="padding:6px">
@@ -156,6 +156,13 @@
                                         ₹{{ number_format($orderDetail->payments->sum('amount'), 2) ?? 0.00 }}</td>
                                 </tr>
                             @endforeach
+
+                            @else
+                            <tr>
+                                <td colspan="6">
+                                    <img src="/assets/no-data.png" class="img-fluid m-auto d-block" style="width:500px">
+                                </td>
+                            </tr>
                         @endif
                     </tbody>
                 </table>
@@ -236,19 +243,27 @@
                         </tr>
                     </thead>
                     <tbody>
-
-                        @foreach ($completedQuotations as $completedQuotation)
+                        @if($completedQuotations->count() > 0)
+                            @foreach ($completedQuotations as $completedQuotation)
+                                <tr>
+                                    <td>{{ $completedQuotation?->quotation_date }}</td>
+                                    <td>
+                                        <a href="#"
+                                            style="color:red;font-weight:bold">{{ $completedQuotation->quotation_no }}</a>
+                                    </td>
+                                    <td>{{ $completedQuotation?->customer?->customer_name }}</td>
+                                    <td class="text-center"><span class="badge bg-success text-white">Completed</span></td>
+                                    <td>₹{{ number_format($completedQuotation->total_collectable_amount, 2) }}</td>
+                                </tr>
+                            @endforeach
+                            @else
                             <tr>
-                                <td>{{ $completedQuotation?->quotation_date }}</td>
-                                <td>
-                                    <a href="#"
-                                        style="color:red;font-weight:bold">{{ $completedQuotation->quotation_no }}</a>
+                                <td colspan="5">
+                                    <img src="/assets/no-data.png" class="img-fluid m-auto d-block" style="width:500px">
                                 </td>
-                                <td>{{ $completedQuotation?->customer?->customer_name }}</td>
-                                <td class="text-center"><span class="badge bg-success text-white">Completed</span></td>
-                                <td>₹{{ number_format($completedQuotation->total_collectable_amount, 2) }}</td>
                             </tr>
-                        @endforeach
+                        @endif
+
                     </tbody>
                 </table>
             </div>

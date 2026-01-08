@@ -1,4 +1,4 @@
-<div class="modal fade" id="createPaymentModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+<div class="modal fade" id="createRoleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <form id="createFormSubmit" class="form-horizontal m-t-10" method="POST" action="{{ route('roles.store') }}">
                             @csrf

@@ -3,28 +3,31 @@
 namespace App\Http\Controllers;
 
 use App\Models\Task;
+use App\Models\Product;
+use App\Models\Quotation;
 use Illuminate\Http\Request;
-use App\Models\QuotationProducts;
-use Illuminate\Http\Request as HttpRequest;
-use Illuminate\Support\Facades\DB;
+use Barryvdh\DomPDF\Facade\Pdf;
 
+use App\Models\ProductComponents;
+use App\Models\QuotationProducts;
+use Illuminate\Support\Facades\DB;
 use App\DataTables\TaskReportDataTable;
+use App\Exports\CollectionReportExport;
 use App\Models\QuotationProductionStages;
+use App\Models\StockInwardOutwardDetails;
+use Spatie\SimpleExcel\SimpleExcelWriter;
+use Illuminate\Http\Request as HttpRequest;
 use App\DataTables\QuotationReportDataTable;
+use App\Http\Resources\StockInOutCollection;
 use App\DataTables\CollectionReportDataTable;
+use App\DataTables\SalesStockReportDataTable;
 use App\DataTables\BomPurchaseReportDataTable;
 use App\DataTables\ProductStockReportDataTable;
 use App\Http\Resources\EmployeeReportCollection;
 use App\DataTables\ComponentStockReportDataTable;
-use App\DataTables\EmployeeWiseProductionReportDataTable;
-use App\DataTables\SalesStockReportDataTable;
-use App\Models\Product;
-use App\Models\ProductComponents;
-use App\Models\Quotation;
-use App\Exports\CollectionReportExport;
-use Spatie\SimpleExcel\SimpleExcelWriter;
-use Barryvdh\DomPDF\Facade\Pdf;
 use App\Http\Resources\BomPurchaseReportCollection;
+use App\DataTables\StockInwardOutwardDetailsDataTable;
+use App\DataTables\EmployeeWiseProductionReportDataTable;
 
 class ReportController extends Controller
 {
@@ -1501,6 +1504,42 @@ class ReportController extends Controller
             "status" => 'success',
             "message" => 'Quotation Details',
             "data" => $bomDetails
+        ]);
+    }
+
+    public function stockInOutReport(StockInwardOutwardDetailsDataTable $dataTable)
+    {
+        return $dataTable->render('pages.reports.stock-in-out-report');
+    }
+
+    public function stockInOutReportFilter(Request $request)
+    {
+        $productId = $request->productIds;
+        $stocks = $request->stocks;
+
+         $query = StockInwardOutwardDetails::query();
+
+        if (!empty($productId)) {
+            $query->whereIn('product_id', (array) $productId);
+        }
+
+        if (!empty($stocks)) {
+
+            if ($stocks === 'inward') {
+                $query->where('stock_status', 'stock_in');
+            }
+
+            if ($stocks === 'outward') {
+                $query->where('stock_status', 'stock_out');
+            }
+        }
+
+        $stock = $query->get();
+
+        return response()->json([
+            "status" => 'success',
+            "message" => 'Stock Details',
+            "data" => new StockInOutCollection($stock)
         ]);
     }
 }

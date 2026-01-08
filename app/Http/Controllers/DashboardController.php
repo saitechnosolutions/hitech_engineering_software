@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Resources\PaymentFilterCollection;
+use Carbon\Carbon;
 use App\Models\Task;
 use App\Models\Employee;
 use App\Models\Quotation;
@@ -10,12 +10,14 @@ use App\Models\ProcessTeam;
 use Illuminate\Http\Request;
 use App\Models\InvoiceRequest;
 use App\Models\PaymentDetails;
+use Barryvdh\DomPDF\Facade\Pdf;
+use App\Models\ProductionHistory;
+use App\Exports\TlDashboardExport;
 use Spatie\Permission\Models\Role;
 use Illuminate\Support\Facades\Auth;
 use App\Models\QuotationProductionStages;
-use Barryvdh\DomPDF\Facade\Pdf;
 use Spatie\SimpleExcel\SimpleExcelWriter;
-use App\Exports\TlDashboardExport;
+use App\Http\Resources\PaymentFilterCollection;
 
 class DashboardController extends Controller
 {
@@ -33,7 +35,7 @@ class DashboardController extends Controller
 
         $teamIds = ProcessTeam::whereIn('team_slug', $permissionNames)->pluck('id');
 
-        $quotations = Quotation::with('quotationProducts')->where('production_status', '!=', 'completed')->get();
+        $quotations = Quotation::with('quotationProducts')->where('is_production_moved', 'Yes')->whereIn('production_status', ['pending', 'partialy_completed', 'ongoing', ''])->get();
 
         $teamId = Auth::user()->team_id;
         $employees = Employee::where('team_id', $teamId)->get();
@@ -53,10 +55,66 @@ class DashboardController extends Controller
         $revenueAmount = Quotation::where('production_status', 'completed')->sum('total_collectable_amount');
         $collectionPendingAmount = Quotation::whereIn('production_status', ['production_moved', 'ongoing'])->sum('total_collectable_amount');
 
-        $lastWeekData = [15000, 3000, 30000, 22000, 3000, 17000, 65000];
-        $currentWeekData = [10005, 20002, 10009, 20005, 2000, 10004, 10001];
+        if($teamId == 1){
+        $teamName = 'ms_fabrication';
+    } elseif($teamId == 2){
+        $teamName = 'ss_fabrication';
+    } elseif($teamId == 3){
+        $teamName = 'fitting_team';
+    }
+    else
+    {
+        $teamName = '';
+    }
 
-        return view('pages.dashboard.index', compact('quotations', 'roleId', 'lastWeekData', 'currentWeekData', 'teamIds', 'roleName', 'employees', 'teamId', 'orderDetails', 'processTeams', 'completedQuotations', 'recentTasks', 'invoiceRequests',  'todayPaymentColledtedCount', 'activeOrdersCount', 'collectionPendingAmount', 'revenueAmount', 'retailOrdersCount', 'retailOrdersCountCompleted', 'inProductionCount'));
+        $deliveryChallanStatus = ProductionHistory::where('team_name', $teamName)->where('delivery_challan_status', 'pending')->get();
+
+
+
+        $currentWeekData = PaymentDetails::whereBetween('payment_date', [
+            Carbon::now()->startOfWeek(),   // Monday 00:00
+            Carbon::now()->endOfWeek()      // Sunday 23:59
+        ])->pluck('amount');
+
+        $lastWeekData = PaymentDetails::whereBetween('payment_date', [
+            Carbon::now()->subWeek()->startOfWeek(),
+            Carbon::now()->subWeek()->endOfWeek(),
+        ])->pluck('amount');
+
+        $quotationProductCheck = Quotation::where('is_production_moved', 'Yes')
+        ->whereHas('quotationProducts', function ($query) {
+            $query->where('production_status', 'pending');
+        })
+        ->get();
+
+
+        // $lastWeekData = [15000, 3000, 30000, 22000, 3000, 17000, 65000];
+        // $currentWeekData = [10005, 20002, 10009, 20005, 2000, 10004, 10001];
+
+        return view('pages.dashboard.index', compact(
+            'quotations',
+            'roleId',
+            'lastWeekData',
+            'currentWeekData',
+            'teamIds',
+            'roleName',
+            'employees',
+            'teamId',
+            'orderDetails',
+            'processTeams',
+            'completedQuotations',
+            'recentTasks',
+            'invoiceRequests',
+            'todayPaymentColledtedCount',
+            'activeOrdersCount',
+            'collectionPendingAmount',
+            'revenueAmount',
+            'retailOrdersCount',
+            'retailOrdersCountCompleted',
+            'inProductionCount',
+            'quotationProductCheck',
+            'deliveryChallanStatus'
+        ));
     }
 
     public function dashboardTl()

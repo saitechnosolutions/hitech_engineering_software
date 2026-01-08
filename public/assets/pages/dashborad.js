@@ -458,6 +458,91 @@ $(document).on("click", ".updateStockOnProduct", function(){
 });
 
 
+$(document).on("click", ".generateDc", function(){
+    var teamName = $(this).data("team");
+
+
+    Swal.fire({
+        title: "Are you sure?",
+        text: "Generate DC",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Yes, Generate!",
+    }).then((result) => {
+
+        if (result.isConfirmed) {
+            $.ajax({
+                method: "POST",
+                url: '/generateDc',
+                data: {
+                    teamName: teamName,
+                },
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                success: function (data) {
+                    if (data && data.status === 'success') {
+                        toastr.success(data.message);
+                        setTimeout(() => location.reload(), 1000);
+                    } else {
+                        toastr.error(data.message || 'Unexpected server response.');
+                    }
+                },
+                error: function (xhr) {
+                    toastr.error("Request failed.");
+                }
+            });
+        }
+
+    });
+
+});
+
+$(document).on("click", ".challanReceived", function(){
+    var challanId = $(this).data("challanid");
+
+
+    Swal.fire({
+        title: "Are you sure?",
+        text: "Delivery Challan Received",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Yes, Received!",
+    }).then((result) => {
+
+        if (result.isConfirmed) {
+            $.ajax({
+                method: "POST",
+                url: '/updateChallan',
+                data: {
+                    challanId: challanId,
+                },
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                success: function (data) {
+                    if (data && data.status === 'success') {
+                        toastr.success(data.message);
+                        setTimeout(() => location.reload(), 1000);
+                    } else {
+                        toastr.error(data.message || 'Unexpected server response.');
+                    }
+                },
+                error: function (xhr) {
+                    toastr.error("Request failed.");
+                }
+            });
+        }
+
+    });
+
+});
+
+
 
 }(window.jQuery),
 

@@ -8,6 +8,7 @@ use App\Models\Quotation;
 use Illuminate\Http\Request;
 use App\Models\InvoiceRequest;
 use App\Models\QuotationBatch;
+use App\Models\DeliveryChallan;
 use App\Models\ProductionHistory;
 use App\Models\QuotationProducts;
 use Illuminate\Support\Facades\DB;
@@ -15,6 +16,7 @@ use Spatie\Permission\Models\Role;
 use Illuminate\Support\Facades\Auth;
 use App\Models\InvoiceRequestProducts;
 use App\Models\QuotationProductionStages;
+use App\Models\StockInwardOutwardDetails;
 
 class ProductionController extends Controller
 {
@@ -39,6 +41,10 @@ class ProductionController extends Controller
    public function updateProductionStatus(Request $request)
 {
 
+     $roleId = Auth::user()->roles->first()->id;
+        $role = Role::find($roleId);
+        $roleName = $role->name;
+
     foreach ($request->received_qty as $bomId => $qty) {
 
         if ($qty === null || $qty === '' || $qty <= 0) {
@@ -50,6 +56,7 @@ class ProductionController extends Controller
 
 
   $productionType = $request->productionType;
+
 
 if ($productionType == 'bom') {
 
@@ -96,7 +103,7 @@ if ($productionType == 'bom') {
 } elseif ($productionType == 'product') {
 
 
-    // Get already completed qty for the WHOLE PRODUCT
+
     $query = ProductionHistory::where('quotation_id', $request->quotationid)
     ->where('product_id', $request->product_id)
     ->where('production_type', 'product');
@@ -109,6 +116,34 @@ $productCompletedQty = $query->sum('completed_qty');
 
 
     $productRemainingQty = $quotationProduct->quantity - $productCompletedQty;
+
+
+    $quotationBatch = QuotationBatch::whereJsonContains(
+    'quotation_ids',
+    (int) $request->quotationid
+)->first();
+
+        $existProduct = StockInwardOutwardDetails::where('product_id', $request->product_id)->where('quotation_id', $request->quotationid)->where('quotation_batch_id', $quotationBatch->id)->exists();
+
+        if(!$existProduct)
+        {
+        if($roleName == 'Team Leader - Packing Team')
+        {
+
+                $stockInwardAndOutwardDetails = new StockInwardOutwardDetails();
+                $stockInwardAndOutwardDetails->product_id = $request->product_id;
+                $stockInwardAndOutwardDetails->inward_qty = $quotationProduct->quantity;
+                $stockInwardAndOutwardDetails->inward_date = date("Y-m-d");
+                $stockInwardAndOutwardDetails->quotation_id = $request->quotationid;
+                $stockInwardAndOutwardDetails->quotation_batch_id = $quotationBatch->id;
+                $stockInwardAndOutwardDetails->stock_status = 'stock_in';
+                $stockInwardAndOutwardDetails->save();
+
+        }
+
+
+        }
+
 
     // if ($qty > $productRemainingQty) {
     //     return response()->json([
@@ -131,6 +166,26 @@ $productCompletedQty = $query->sum('completed_qty');
     $history->production_type = $request->productionType;
     $history->team_name = $request->team;
     $history->save();
+
+    // if($productionType == 'product')
+    // {
+
+    //     $lastNumber = DB::table('delivery_challans')->max('id');
+    //     $nextNumber = $lastNumber + 1;
+    //     $formattedNumber = str_pad($nextNumber, 5, '0', STR_PAD_LEFT);
+    //      $financialYear = getFinancialYear();
+    //     $deliveryChallanId = "HT-DC-{$financialYear}/{$formattedNumber}";
+
+    //     $deliveryChallan = new DeliveryChallan();
+    //     $deliveryChallan->delivery_challan_id = $deliveryChallanId;
+    //     $deliveryChallan->delivery_challan_date = date("Y-m-d");
+    //     $deliveryChallan->save();
+    // }
+
+    // $history->update([
+    //     "delivery_challan_id" => $deliveryChallan->id,
+    //     "delivery_challan_status" => 'created',
+    // ]);
 
 }
 
@@ -397,8 +452,9 @@ foreach ($productionUpdate as $item) {
 
     foreach ($request->product_id as $index => $productId) {
 
+
         $quotationProduct = QuotationProducts::where('quotation_id', $request->quotation_id)
-            ->where('id', $productId)
+            ->where('product_id', $productId)
             ->first();
 
         if(!$quotationProduct){
@@ -408,6 +464,21 @@ foreach ($productionUpdate as $item) {
         $quotationProduct->update([
             "partial_qty" => $quotationProduct->partial_qty + $request->qty[$index] ?? 0
         ]);
+
+        $quotationBatch = QuotationBatch::whereJsonContains(
+    'quotation_ids',
+    (int) $request->quotation_id
+)->first();
+
+
+        $stockInwardAndOutwardDetails = new StockInwardOutwardDetails();
+        $stockInwardAndOutwardDetails->product_id = $productId;
+        $stockInwardAndOutwardDetails->outward_qty = $request->qty[$index];
+        $stockInwardAndOutwardDetails->outward_date = date("Y-m-d");
+        $stockInwardAndOutwardDetails->quotation_id = $request->quotation_id;
+        $stockInwardAndOutwardDetails->quotation_batch_id = $quotationBatch->id;
+        $stockInwardAndOutwardDetails->stock_status = 'stock_out';
+        $stockInwardAndOutwardDetails->save();
     }
 
     $quotation = Quotation::find($request->quotation_id);

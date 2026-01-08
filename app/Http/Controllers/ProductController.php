@@ -6,10 +6,12 @@ use App\Models\Product;
 use App\Models\BOMParts;
 use App\Models\Quotation;
 use Illuminate\Http\Request;
+use App\Models\QuotationBatch;
 use App\Models\BomProcessTeams;
 use App\Models\ProductComponents;
 use App\DataTables\ProductDataTable;
 use App\DataTables\ComponentDataTable;
+use App\Models\StockInwardOutwardDetails;
 
 class ProductController extends Controller
 {
@@ -155,7 +157,7 @@ class ProductController extends Controller
 
 
 
-        $quotation = Quotation::find($quotationId);
+        $quotation = Quotation::with('quotationProducts')->find($quotationId);
 
          if ($quotation->dispatch_image == null) {
         return response()->json([
@@ -167,6 +169,26 @@ class ProductController extends Controller
         $quotation->update([
             "production_status" => 'completed'
         ]);
+
+
+        foreach ($quotation->quotationProducts as $index => $product) {
+
+            $quotationBatch = QuotationBatch::whereJsonContains(
+    'quotation_ids',
+    (int) $request->quotation_id
+)->first();
+
+            $stockInwardAndOutwardDetails = new StockInwardOutwardDetails();
+            $stockInwardAndOutwardDetails->product_id = $product->product_id;
+            $stockInwardAndOutwardDetails->outward_qty = $product->quantity;
+            $stockInwardAndOutwardDetails->outward_date = date("Y-m-d");
+            $stockInwardAndOutwardDetails->quotation_id = $quotationId;
+            $stockInwardAndOutwardDetails->quotation_batch_id = $quotationBatch->id;
+            $stockInwardAndOutwardDetails->stock_status = 'stock_out';
+
+            $stockInwardAndOutwardDetails->save();
+        }
+
 
         return response()->json([
             "status" => 'success',
@@ -211,6 +233,21 @@ class ProductController extends Controller
         $product->update([
             "stock_qty" => $product->stock_qty + $qProd->quantity
         ]);
+
+          $quotationBatch = QuotationBatch::whereJsonContains(
+    'quotation_ids',
+    (int) $request->quotation_id
+)->first();
+
+            $stockInwardAndOutwardDetails = new StockInwardOutwardDetails();
+            $stockInwardAndOutwardDetails->product_id = $qProd->product_id;
+            $stockInwardAndOutwardDetails->outward_qty = $qProd->quantity;
+            $stockInwardAndOutwardDetails->outward_date = date("Y-m-d");
+            $stockInwardAndOutwardDetails->quotation_id = $quotationId;
+            $stockInwardAndOutwardDetails->quotation_batch_id = $quotationBatch->id;
+            $stockInwardAndOutwardDetails->stock_status = 'stock_out';
+            $stockInwardAndOutwardDetails->save();
+
     }
 
     $quotation->update([
@@ -285,7 +322,7 @@ public function update(Request $request, $id)
         'quantity'      => $request->quantity,
         'variation'     => $request->variation,
         'hsn_code'      => $request->hsn_code,
-        
+
         'color'         => $request->color,
         'material'      => $request->material,
         'product_image' => $productImageUrl,
@@ -297,7 +334,7 @@ public function update(Request $request, $id)
     BomProcessTeams::whereIn('bom_id', $oldBoms)->delete();
     BOMParts::where('product_id', $product->id)->delete();
 
-   
+
     foreach ($request->bom_part_name as $index => $productName) {
 
         $categoryName = ProductComponents::find($request->packing_bom[$index]);
@@ -319,7 +356,7 @@ public function update(Request $request, $id)
 
         $bom->save();
 
-       
+
         $processTeams = $request->process_team[$index] ?? [];
 
         if (!is_array($processTeams)) {
@@ -335,7 +372,7 @@ public function update(Request $request, $id)
             $bomProcessTeam->save();
         }
     }
-    
+
         return response()->json([
             "status" => 'success',
             "message" => 'Category Updated Successfully',

@@ -36,4 +36,37 @@ class EmployeeController extends Controller
 
         return view('pages.employees.edit', compact('employee'));
     }
+
+    public function update(Request $request, $id)
+    {
+        $employee = Employee::findOrFail($id);
+
+        $employee->update([
+            "name" => $request->name,
+            "email" => $request->email,
+            "mobile_number" => $request->mobile_number,
+            "address" => $request->address,
+            "team_id" => $request->team_id,
+        ]);
+
+
+        return response()->json([
+            "status" => 'success',
+            "message" => 'Employee Updated Successfully',
+            "redirectTo" => '/employees'
+        ]);
+    }
+
+    public function delete($id)
+    {
+        $employee = Employee::find($id);
+
+        $employee->delete();
+
+        return response()->json([
+            "status" => 'success',
+            "message" => 'Employee Deleted Successfully',
+            "redirectTo" => '/employees'
+        ]);
+    }
 }

@@ -16,7 +16,7 @@
                                         <h4 class="mt-0 header-title">Employee</h4>
                                     </div>
                                 </div>
-                                <form id="createFormSubmit" class="form-horizontal m-t-10" method="POST" action="{{ route('employees.edit', $employee->id) }}">
+                                <form id="createFormSubmit" class="form-horizontal m-t-10" method="POST" action="{{ route('employees.update', $employee->id) }}">
 
 
 
@@ -27,7 +27,7 @@
                                         <label>Employee Name</label>
                                         <div>
                                             <input type="text" class="form-control" required
-                                                    parsley-type="text" name="name" placeholder=""/>
+                                                    parsley-type="text" name="name" value="{{ $employee->name }}" placeholder=""/>
                                         </div>
                                     </div>
                                         </div>
@@ -43,8 +43,6 @@
                                     </div>
 
                                     <div class="col-lg-4">
-
-
                                     <div class="form-group">
                                         <label>Allocate Team</label>
                                         <div>
@@ -52,7 +50,7 @@
                                                 <option value="">-- Choose Option --</option>
                                                 @if ($teams = App\Models\ProcessTeam::get())
                                                     @foreach ($teams as $team)
-                                                        <option value="{{ $team->id }}">{{ $team->team_name }}</option>
+                                                        <option value="{{ $team->id }}" @if($team->id == $employee->team_id) selected @endif>{{ $team->team_name }}</option>
                                                     @endforeach
                                                 @endif
                                            </select>
@@ -61,13 +59,11 @@
                                     </div>
 
                                     <div class="col-lg-4">
-
-
                                     <div class="form-group">
                                         <label>Mobile Number</label>
                                         <div>
                                             <input type="text" class="form-control" required
-                                                    parsley-type="text" name="mobile_number" placeholder=""/>
+                                                    parsley-type="text" name="mobile_number" value="{{ $employee->mobile_number }}" placeholder=""/>
                                         </div>
                                     </div>
                                     </div>
@@ -78,7 +74,7 @@
                                     <div class="form-group">
                                         <label>Address</label>
                                         <div>
-                                            <textarea class="form-control" name="address"></textarea>
+                                            <textarea class="form-control" name="address">{{ $employee->address }}</textarea>
                                         </div>
                                     </div>
                                     </div>

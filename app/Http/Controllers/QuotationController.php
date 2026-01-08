@@ -14,6 +14,7 @@ use Barryvdh\DomPDF\Facade\Pdf;
 use App\Models\QuotationProducts;
 use Illuminate\Support\Facades\DB;
 use App\DataTables\QuotationDataTable;
+use App\DataTables\TrashedQuotationDataTable;
 use App\Models\QuotationProductionStages;
 
 
@@ -28,13 +29,21 @@ class QuotationController extends Controller
         $productionCompletedQuotations = Quotation::where('production_status', 'completed')->orderBy('id', 'desc')->get();
         $totalQuotationsCount = Quotation::count();
 
+        $quotationProductCheck = Quotation::where('is_production_moved', 'Yes')
+        ->whereHas('quotationProducts', function ($query) {
+            $query->where('production_status', 'pending');
+        })
+        ->get();
+
+
         return $dataTable->render('pages.quotations.index', [
             "quotationBatches" => $batches,
             "productionMovedQuotations" => $productionMovedQuotations,
             "productionOngoingQuotations" => $productionOngoingQuotations,
             "productionPendingQuotations" => $productionPendingQuotations,
             "productionCompletedQuotations" => $productionCompletedQuotations,
-            "totalQuotationsCount" => $totalQuotationsCount
+            "totalQuotationsCount" => $totalQuotationsCount,
+            "quotationProductCheck" => $quotationProductCheck
         ]);
     }
 
@@ -211,7 +220,6 @@ class QuotationController extends Controller
    public function moveToProduction(Request $request)
 {
 
-
         $batchId = $request->batch_id;
 
         $batch = QuotationBatch::find($batchId);
@@ -253,22 +261,29 @@ class QuotationController extends Controller
 
                     $bomParts = BOMParts::find($bomProces->bom_id);
 
-                    $productionStage = new QuotationProductionStages();
-                    $productionStage->quotation_id = $quotationId;
-                    $productionStage->product_id = $bomProces->product_id;
-                    $productionStage->bom_id = $bomProces->bom_id;
-                    $productionStage->team_id = $bomProces->team_id;
-                    $productionStage->stage = $bomProces->stage;
-                    $productionStage->production_status = 'pending';
-                    $productionStage->product_quantity = $quotationDetail->quantity;
-                    $productionStage->bom_required_quantity = (int) $bomParts->bom_qty * $quotationDetail->quantity;
-                    $productionStage->save();
+                    $existCheck = QuotationProducts::where('quotation_id', $quotationId)->where('product_id', $quotationDetail->product_id)->where('production_status', 'production_moved')->exists();
+
+                    if(!$existCheck)
+                    {
+                        $productionStage = new QuotationProductionStages();
+                        $productionStage->quotation_id = $quotationId;
+                        $productionStage->product_id = $bomProces->product_id;
+                        $productionStage->bom_id = $bomProces->bom_id;
+                        $productionStage->team_id = $bomProces->team_id;
+                        $productionStage->stage = $bomProces->stage;
+                        $productionStage->production_status = 'pending';
+                        $productionStage->product_quantity = $quotationDetail->quantity;
+                        $productionStage->bom_required_quantity = (int) $bomParts->bom_qty * $quotationDetail->quantity;
+                        $productionStage->save();
+                    }
+
 
                 }
 
                   $quotationDetail->update([
                     "available_stock" => $availableStock,
-                    "production_stock" => $productionStock
+                    "production_stock" => $productionStock,
+                    "production_status" => 'production_moved',
                 ]);
 
                 $productStock = Product::find($quotationDetail->product_id);
@@ -342,6 +357,176 @@ public function edit($id)
     $quotation = Quotation::with('quotationProducts')->find($id);
 
     return view('pages.quotations.edit', compact('quotation'));
+}
+
+public function update(Request $request, $id)
+{
+   $quotation = Quotation::findOrFail($id);
+
+   if($request->total_amount < $request->collection_amount)
+   {
+        return response()->json([
+            "status" => 'error',
+            "message" => 'Please check the Collectable Amount'
+        ]);
+   }
+
+    $quotation->update([
+        'quotation_date' => $request->quotation_date,
+        'mode_terms_of_payment' => $request->mode_terms_of_payment,
+        'buyer_reference_order_no' => $request->buyer_reference_order_no,
+        'other_references' => $request->other_references,
+        'dispatch_through' => $request->dispatch_through,
+        'destination' => $request->destination,
+        'terms_of_delivery' => $request->terms_of_delivery,
+        'customer_id' => $request->customer_id,
+        'quotation_type' => $request->quotation_type,
+        'customer_type' => $request->customer_type,
+        'total_actual_amount' => $request->total_amount,
+        'total_collectable_amount' => $request->collection_amount,
+        'cgst_percentage' => $request->cgst_percentage,
+        'cgst_value' => $request->cgst_amount,
+        'sgst_percentage' => $request->sgst_percentage,
+        'sgst_value' => $request->sgst_amount,
+        'igst_percentage' => $request->igst_percentage,
+        'igst_value' => $request->igst_amount,
+        'quotation_edit_count' => 1
+    ]);
+
+        foreach($request->product_id as $index => $productId)
+        {
+            $quotationProducts = QuotationProducts::where('quotation_id', $id)->where('product_id', $productId)->first();
+
+            if($quotationProducts)
+            {
+                $quotationProducts->update([
+                    'quantity' => $request->quantity[$index],
+                    'rate' => $request->rate[$index],
+                    'wholesale_price' => $request->wholesale_price[$index],
+                    'uom' => $request->per[$index],
+                    'discount_percentage' => $request->disc_percentage[$index],
+                    'discount_amount' => ($request->rate[$index] / 100) * $request->disc_percentage[$index],
+                    'total_amount' => $request->amount[$index],
+                ]);
+            }
+            else
+            {
+
+                    $quotationProducts = new QuotationProducts();
+                    $quotationProducts->quotation_id = $quotation->id;
+                    $quotationProducts->product_id = $productId;
+                    $quotationProducts->quantity = $request->quantity[$index];
+                    $quotationProducts->rate = $request->rate[$index];
+                    $quotationProducts->wholesale_price = $request->wholesale_price[$index];
+                    $quotationProducts->uom = $request->per[$index];
+                    $quotationProducts->discount_percentage = $request->disc_percentage[$index];
+                    $quotationProducts->discount_amount = $request->rate[$index] / 100 * $request->disc_percentage[$index];
+                    $quotationProducts->total_amount = $request->amount[$index];
+                    $quotationProducts->save();
+            }
+
+        }
+
+        $existingProductIds = QuotationProducts::where('quotation_id', $quotation->id)
+            ->pluck('product_id')
+            ->toArray();
+
+        $productsToDelete = array_diff($existingProductIds, $request->product_id);
+
+        if (!empty($productsToDelete)) {
+            QuotationProducts::where('quotation_id', $quotation->id)
+                ->whereIn('product_id', $productsToDelete)
+                ->delete();
+        }
+
+        return response()->json([
+            "status" => 'success',
+            "message" => 'Quotation Updated Successfully',
+            "redirectTo" => '/quotations'
+        ]);
+}
+
+public function delete($id)
+{
+    $quotation = Quotation::find($id);
+
+    $quotation->delete();
+
+    return response()->json([
+            "status" => 'success',
+            "message" => 'Quotation Deleted Successfully',
+            "redirectTo" => '/quotations'
+        ]);
+}
+
+    public function trashedQuotations(TrashedQuotationDataTable $dataTable)
+    {
+        return $dataTable->render('pages.quotations.trashed_quotation');
+    }
+
+public function revoketrash($id)
+{
+    $quotation = Quotation::onlyTrashed()->findOrFail($id);
+
+    $quotation->restore();
+
+    return response()->json([
+        "status" => "success",
+        "message" => "Quotation Revoked",
+        "redirectTo" => "/quotations"
+    ]);
+}
+
+public function batchEdit($id)
+{
+    $batch = QuotationBatch::findOrFail($id);
+    $selectedQuotationIds = $batch->quotation_ids ?? [];
+
+    return view('pages.quotations.batch_edit', compact('batch', 'selectedQuotationIds'));
+}
+
+public function batchUpdate(Request $request, $id)
+{
+    $batch = QuotationBatch::findOrFail($id);
+
+    foreach($batch->quotation_ids as $quotationId)
+        {
+            $quotation = Quotation::find($quotationId);
+
+            $quotation->update([
+                "is_production_moved" => 'No',
+                "batch_date" => null,
+                "priority" => null,
+                "production_status" => 'pending',
+            ]);
+        }
+
+    $quotation_ids = array_map('intval', $request->quotation_ids);
+
+    $batch->update([
+        "batch_date" => $request->batch_date,
+        "priority" => $request->priority,
+        "quotation_ids" => $quotation_ids,
+        "quotation_count" => count($quotation_ids),
+    ]);
+
+     foreach($quotation_ids as $quotationId)
+        {
+            $quotation = Quotation::find($quotationId);
+
+            $quotation->update([
+                "is_production_moved" => 'Yes',
+                "batch_date" => $request->batch_date,
+                "priority" => $request->priority,
+                "production_status" => 'pending',
+            ]);
+        }
+
+    return response()->json([
+        "status" => 'success',
+        "message" => 'Batch Updated Successfully',
+        "redirectTo" => '/ready-to-production/'.$id
+    ]);
 }
 
 }

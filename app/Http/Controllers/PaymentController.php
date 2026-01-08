@@ -120,4 +120,59 @@ class PaymentController extends Controller
             'total'  => number_format($payments->sum('amount'), 2),
         ]);
     }
+
+    public function edit($id)
+    {
+        $payment = PaymentDetails::find($id);
+
+        return view('pages.payments.edit', compact('payment'));
+    }
+
+    public function update(Request $request, $id)
+    {
+        $payment = PaymentDetails::find($id);
+
+         $multipleImages = $request->reference_images;
+
+        $paymentImageUrl = [];
+        if ($multipleImages) {
+            foreach ($multipleImages as $image) {
+                $uploadImage = $image;
+                $originalFilename = time() . "-" . str_replace(' ', '_', $uploadImage->getClientOriginalName());
+                $destinationPath = 'payment_images/';
+                $uploadImage->move($destinationPath, $originalFilename);
+                $paymentImageUrl[] = '/payment_images/' . $originalFilename;
+            }
+        } else {
+            $paymentImageUrl = $payment->reference_images;
+        }
+
+        $payment->update([
+            "amount" => $request->amount,
+            "payment_date" => $request->payment_date,
+            "remarks" => $request->remarks,
+            "reference_images" => $paymentImageUrl,
+        ]);
+
+
+        return response()->json([
+            "status" => 'success',
+            "message" => 'Payment Updated Successfully',
+            "redirectTo" => '/payments'
+        ]);
+    }
+
+    public function delete($id)
+    {
+        $payment = PaymentDetails::find($id);
+
+        $payment->delete();
+
+        return response()->json([
+            "status" => 'success',
+            "message" => 'Payment Deleted Successfully',
+            "redirectTo" => '/payments'
+        ]);
+
+    }
 }

@@ -72,7 +72,7 @@
                                     <div class="dropdown-item noti-title">
                                         <h5>Welcome</h5>
                                     </div>
-                                    <a class="dropdown-item" href="#"><i class="mdi mdi-account-circle m-r-5 text-muted"></i> Profile</a>
+                                    {{--  <a class="dropdown-item" href="#"><i class="mdi mdi-account-circle m-r-5 text-muted"></i> Profile</a>  --}}
                                     {{--  <a class="dropdown-item" href="#"><i class="mdi mdi-wallet m-r-5 text-muted"></i> My Wallet</a>
                                     <a class="dropdown-item" href="#"><span class="badge badge-success float-right">5</span><i class="mdi mdi-settings m-r-5 text-muted"></i> Settings</a>
                                     <a class="dropdown-item" href="#"><i class="mdi mdi-lock-open-outline m-r-5 text-muted"></i> Lock screen</a>  --}}
@@ -160,6 +160,7 @@
                                 <a href="#"><i class="mdi mdi-layers"></i>Quotations</a>
                                 <ul class="submenu">
                                     <li><a href="/quotations">Manage Quotations</a></li>
+                                    <li><a href="/trashed-quotations">Trashed Quotations</a></li>
                                 </ul>
                             </li>
                             @endcan
@@ -195,6 +196,12 @@
                             </li>
                             @endcan
 
+                            <li class="has-submenu">
+                                <a href="#"><i class="mdi mdi-layers"></i>DC</a>
+                                <ul class="submenu">
+                                    <li><a href="/delivery-challan">Manage DC</a></li>
+                                </ul>
+                            </li>
 
                         </ul>
                         <!-- End navigation menu -->

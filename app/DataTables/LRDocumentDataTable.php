@@ -37,32 +37,32 @@ class LRDocumentDataTable extends DataTable
                 <i class='fa fa-cog' aria-hidden='true'></i>
             </button>
             <div class='dropdown-menu' aria-labelledby='dropdownMenuButton'>
-                <a class='dropdown-item' href='/roles/$query->id/give-permission'>Add Permission</a>
-                <a class='dropdown-item' href='/roles/edit/{$query->id}'>Edit</a>
-                <a class='dropdown-item deleteBtn' data-url='/roles/delete/{$query->id}'>Delete</a>
+                <a class='dropdown-item' href='/lr-documents/edit/{$query->id}'>Edit</a>
+                <a class='dropdown-item deleteBtn' data-url='/lr-documents/delete/{$query->id}'>Delete</a>
             </div>
             </div>
                 ";
 })
             ->addColumn('upload_documents', function($query){
-                $files = json_decode($query->upload_documents, true);
+               $files = $query?->upload_documents;
 
-    if (!$files) {
-        return '-';
-    }
+if (empty($files) || !is_array($files)) {
+    return '-';
+}
 
-    $html = '';
+$html = '';
 
-    foreach ($files as $file) {
+foreach ($files as $file) {
+    $url = asset($file);
 
-        $url = asset($file);
+    $html .= '<a href="'.$url.'" target="_blank" class="btn btn-sm btn-success" title="Download">
+                <i class="fa fa-download"></i>
+              </a> ';
+}
 
-        $html .= '<a href="'.$url.'" target="_blank" class="btn btn-sm btn-success" title="Download">
-                    <i class="fa fa-download"></i>
-                  </a> ';
-    }
+return $html;
 
-    return $html;
+
             })
             ->rawColumns(['upload_documents', 'action'])
             ->setRowId('id');

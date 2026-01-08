@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class QuotationBatch extends Model
 {
     protected $casts = [
-        "quotation_ids" => 'json'
+        "quotation_ids" => 'array'
     ];
 
     protected $fillable = [

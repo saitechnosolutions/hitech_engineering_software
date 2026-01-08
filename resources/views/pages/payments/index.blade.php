@@ -24,7 +24,7 @@
                     <form class="reportSubmission" action="{{ route('paymentReportFilter') }}" id="paymentReportFilter">
                         @csrf
                         <div class="row">
-                            <div class="col-lg-4">
+                            <div class="col-lg-3">
                                 <div class="form-group">
                                     <label>Quotation No</label>
                                     <div>
@@ -42,20 +42,20 @@
                             </div>
 
 
-                            <div class="col-lg-4">
+                            <div class="col-lg-3">
                                 <div class="form-group">
                                     <label>From Date</label>
                                     <input type="date" class="form-control" name="fromdate" id="fromDate">
                                 </div>
                             </div>
 
-                            <div class="col-lg-4">
+                            <div class="col-lg-3">
                                 <div class="form-group">
                                     <label>Todate</label>
                                     <input type="date" class="form-control" name="todate" id="toDate">
                                 </div>
                             </div>
-                            <div class="col-lg-4">
+                            <div class="col-lg-3">
                                 <div class="form-group">
                                     <label>Company Name </label>
                                     {{-- <input type="text" class="form-control" name="company_name" id="companyName"> --}}
@@ -72,7 +72,7 @@
                                     </select>
                                 </div>
                             </div>
-                            <div class="col-lg-4 mt-4">
+                            <div class="col-lg-3">
                                 <div class="form-group">
                                     <label>RM </label>
                                     {{-- <input type="text" class="form-control" name="rm" id="rm"> --}}
